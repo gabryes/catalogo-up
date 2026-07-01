@@ -1,0 +1,7 @@
+.env
+.env.local
+ml_auth.json
+credentials.json
+*.json
+*.key
+*.pem

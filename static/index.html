@@ -1,0 +1,1003 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Guia de Serviços</title>
+  <style>
+    :root {
+      --primary: #2563eb;
+      --primary-dark: #1d4ed8;
+      --secondary: #f59e0b;
+      --bg: #f8fafc;
+      --surface: #ffffff;
+      --text: #1e293b;
+      --text-muted: #64748b;
+      --border: #e2e8f0;
+      --shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+      --radius: 0.75rem;
+      --font: 'Segoe UI', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: var(--font); background: var(--bg); color: var(--text); line-height: 1.6; }
+
+    a { text-decoration: none; color: inherit; }
+
+    header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: var(--shadow);
+    }
+
+    .header-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 1rem 1.25rem;
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .brand {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.5rem;
+    }
+
+    .brand img {
+      width: 220px;
+      height: auto;
+      max-width: 100%;
+      display: block;
+    }
+
+    .brand h1 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      text-align: center;
+      color: var(--primary);
+    }
+
+    .search-bar {
+      width: 100%;
+      max-width: 600px;
+      position: relative;
+      justify-self: center;
+    }
+
+    .search-bar input {
+      width: 100%;
+      padding: 0.75rem 1rem 0.75rem 2.5rem;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      font-size: 1rem;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .search-bar input:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+    }
+
+    .search-bar svg {
+      position: absolute;
+      left: 0.85rem;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 1.1rem;
+      height: 1.1rem;
+      color: var(--text-muted);
+      pointer-events: none;
+    }
+
+    .menu-toggle {
+      display: none;
+    }
+
+    nav.main-nav {
+      justify-self: end;
+    }
+
+    nav.main-nav ul {
+      list-style: none;
+      display: flex;
+      justify-content: flex-end;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    nav.main-nav a {
+      display: block;
+      padding: 0.5rem 1rem;
+      border-radius: var(--radius);
+      font-weight: 600;
+      color: var(--text-muted);
+      transition: background 0.2s, color 0.2s;
+    }
+
+    nav.main-nav a:hover,
+    nav.main-nav a.active {
+      background: rgba(37, 99, 235, 0.08);
+      color: var(--primary);
+    }
+
+    main {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2rem 1.25rem;
+      min-height: 70vh;
+    }
+
+    .page-title {
+      font-size: 1.75rem;
+      margin-bottom: 1.5rem;
+      color: var(--text);
+    }
+
+    .hero {
+      text-align: center;
+      padding: 2rem 1rem;
+      background: linear-gradient(135deg, #eff6ff, #ffffff);
+      border-radius: var(--radius);
+      margin-bottom: 2rem;
+    }
+
+    .hero h2 { font-size: 2rem; color: var(--primary); margin-bottom: 0.75rem; }
+    .hero p { color: var(--text-muted); max-width: 600px; margin: 0 auto; }
+
+    .actions { display: flex; justify-content: center; gap: 0.75rem; flex-wrap: wrap; margin-top: 1.25rem; }
+    .btn {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      padding: 0.65rem 1.25rem; border-radius: 999px; font-weight: 600;
+      border: none; cursor: pointer; transition: transform 0.15s, background 0.2s;
+    }
+    .btn:hover { transform: translateY(-2px); }
+    .btn-primary { background: var(--primary); color: #fff; }
+    .btn-primary:hover { background: var(--primary-dark); }
+    .btn-secondary { background: var(--secondary); color: #fff; }
+    .btn-outline { background: #fff; border: 1px solid var(--border); color: var(--text); }
+    .btn-outline:hover { background: #f1f5f9; }
+    .btn-small { padding: 0.45rem 0.9rem; font-size: 0.9rem; }
+
+    .filters {
+      display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: center; margin-bottom: 1.5rem;
+      background: var(--surface); padding: 1rem; border-radius: var(--radius); border: 1px solid var(--border);
+    }
+    .filters input, .filters select {
+      padding: 0.6rem 0.9rem; border: 1px solid var(--border); border-radius: var(--radius); font-size: 0.95rem;
+      min-width: 220px; flex: 1;
+    }
+
+    .service-list { list-style: none; display: flex; flex-direction: column; gap: 0.75rem; }
+    .service-item {
+      background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 1rem;
+      display: flex; justify-content: space-between; align-items: center; gap: 1rem; cursor: pointer;
+      transition: box-shadow 0.2s, border-color 0.2s;
+    }
+    .service-item:hover { border-color: var(--primary); box-shadow: var(--shadow); }
+    .service-item h3 { font-size: 1.1rem; color: var(--text); }
+    .service-item p { color: var(--text-muted); font-size: 0.92rem; }
+    .service-item .meta { display: flex; gap: 0.75rem; align-items: center; font-size: 0.9rem; }
+
+    /* Badge premium atualizado com dourado */
+    .badge {
+      font-size: 0.75rem;
+      padding: 0.25rem 0.55rem;
+      border-radius: 999px;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+    .badge-premium {
+      background: linear-gradient(135deg, #FFD700, #FFA500);
+      color: #1f2937;
+      letter-spacing: 0.02em;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+    }
+    .badge-category { background: #eff6ff; color: var(--primary); }
+    .price { font-weight: 700; color: #0f172a; }
+
+    /* Seção premium com gradiente sutil */
+    .premium-section {
+      background: linear-gradient(135deg, #e9f0ff, #ffffff);
+      padding: 1.5rem;
+      border-radius: var(--radius);
+      margin-bottom: 2rem;
+      border: 1px solid rgba(0, 85, 212, 0.1);
+    }
+
+    .premium-section h2 {
+      font-size: 1.5rem;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: var(--text);
+    }
+
+    .premium-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1.25rem;
+    }
+
+    .premium-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      min-height: 260px;
+    }
+
+    .premium-card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 12px 24px rgba(0, 85, 212, 0.2);
+      border-color: #0055D4;
+    }
+
+    .premium-card .thumb {
+      height: 150px;
+      background: linear-gradient(135deg, #0055D4, #3b82f6);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 3.5rem;
+      color: #fff;
+    }
+
+    .premium-card .badge {
+      position: absolute;
+      top: 0.75rem;
+      right: 0.75rem;
+      z-index: 2;
+    }
+
+    .premium-card .body {
+      padding: 1rem;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 0.3rem;
+    }
+
+    .premium-card h4 {
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 0.2rem;
+    }
+
+    .premium-card p {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    .category-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+    }
+    .category-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.5rem;
+      text-align: center;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .category-card:hover { transform: translateY(-3px); box-shadow: var(--shadow); border-color: var(--primary); }
+    .category-card .icon { font-size: 2.5rem; margin-bottom: 0.5rem; }
+    .category-card h3 { font-size: 1.15rem; margin-bottom: 0.25rem; }
+    .category-card span { color: var(--text-muted); font-size: 0.85rem; }
+
+    .subcategory-list { list-style: none; display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 1rem; }
+    .subcategory-list li { background: #f1f5f9; padding: 0.5rem 0.75rem; border-radius: var(--radius); font-size: 0.9rem; }
+
+    .modal-overlay {
+      position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6); display: none; align-items: center; justify-content: center;
+      z-index: 200; padding: 1rem;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal {
+      background: var(--surface); border-radius: var(--radius); width: 100%; max-width: 640px; max-height: 90vh; overflow-y: auto;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2); animation: slideIn 0.25s ease;
+    }
+    @keyframes slideIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    .modal-header { padding: 1rem 1.25rem; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+    .modal-title { font-size: 1.25rem; font-weight: 700; }
+    .modal-close { background: none; border: none; font-size: 1.5rem; color: var(--text-muted); cursor: pointer; }
+    .modal-body { padding: 1.25rem; }
+    .modal-image { width: 100%; height: 180px; background: #e2e8f0; border-radius: var(--radius); margin-bottom: 1rem; display: flex; align-items: center; justify-content: center; font-size: 3rem; color: var(--text-muted); }
+    .modal-description { margin-bottom: 1rem; color: var(--text-muted); }
+    .modal-meta { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 0.75rem; margin-bottom: 1.25rem; }
+    .modal-meta div { background: #f8fafc; padding: 0.75rem; border-radius: var(--radius); font-size: 0.9rem; }
+    .modal-actions { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+
+    footer { background: #0f172a; color: #cbd5e1; text-align: center; padding: 1.5rem; font-size: 0.9rem; margin-top: 2rem; }
+    footer a { color: #93c5fd; }
+
+    .empty-state { text-align: center; padding: 3rem 1rem; color: var(--text-muted); }
+    .empty-state h3 { color: var(--text); margin-bottom: 0.5rem; }
+
+    .about-content { background: var(--surface); padding: 1.5rem; border-radius: var(--radius); border: 1px solid var(--border); max-width: 800px; }
+    .about-content h2 { margin-bottom: 0.75rem; color: var(--primary); }
+    .about-content p { margin-bottom: 1rem; color: var(--text-muted); }
+    .about-content ul { margin-left: 1.25rem; color: var(--text-muted); }
+
+    .spinner {
+      border: 4px solid var(--border);
+      border-top-color: var(--primary);
+      border-radius: 50%;
+      width: 3rem;
+      height: 3rem;
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    .spinner-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(255,255,255,0.9);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 300;
+    }
+
+    @media (max-width: 1024px) {
+      .premium-grid { grid-template-columns: repeat(2, 1fr); }
+      .category-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    @media (max-width: 640px) {
+      .brand img { width: 160px; }
+      .brand h1 { font-size: 1.25rem; }
+      .premium-grid { grid-template-columns: 1fr; }
+      .category-grid { grid-template-columns: 1fr; }
+      .service-item { flex-direction: column; align-items: flex-start; }
+      .filters input, .filters select { min-width: 100%; }
+      .modal-actions .btn { width: 100%; justify-content: center; }
+
+      /* Mobile header reorganização */
+      .header-inner {
+        grid-template-columns: 1fr auto;
+        grid-template-areas: "brand toggle" "search search";
+        gap: 0.5rem;
+        padding: 0.75rem 1rem;
+      }
+      .brand {
+        grid-area: brand;
+        align-items: flex-start;
+      }
+      .menu-toggle {
+        grid-area: toggle;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: none;
+        border: none;
+        font-size: 1.75rem;
+        color: var(--text);
+        cursor: pointer;
+        padding: 0.25rem;
+        justify-self: end;
+      }
+      .search-bar {
+        grid-area: search;
+        max-width: none;
+        width: 100%;
+      }
+      nav.main-nav {
+        position: fixed;
+        top: 0;
+        right: 0;
+        height: 100%;
+        width: 280px;
+        max-width: 80vw;
+        background: var(--surface);
+        box-shadow: -4px 0 12px rgba(0,0,0,0.15);
+        transform: translateX(100%);
+        transition: transform 0.3s ease-in-out;
+        z-index: 200;
+        padding: 1.5rem;
+        overflow-y: auto;
+        display: block;
+      }
+      nav.main-nav.open {
+        transform: translateX(0);
+      }
+      nav.main-nav ul {
+        flex-direction: column;
+        gap: 0.75rem;
+        align-items: flex-start;
+      }
+      .menu-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,0.5);
+        z-index: 199;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.3s ease;
+      }
+      .menu-overlay.active {
+        opacity: 1;
+        pointer-events: auto;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="header-inner">
+      <a href="#inicio" class="brand">
+        <img src="logo_2.png" alt="Logo Guia de Serviços">
+      </a>
+      <div class="search-bar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><path d="M21 21l-4.35-4.35"></path></svg>
+        <input type="text" id="globalSearch" placeholder="Buscar por serviço, categoria ou palavra-chave...">
+      </div>
+      <button class="menu-toggle" id="menuToggle" aria-label="Abrir menu" aria-expanded="false">☰</button>
+      <nav class="main-nav" id="mainNav" aria-label="Navegação principal">
+        <ul>
+          <li><a href="#inicio" data-page="inicio">Início</a></li>
+          <li><a href="#catalogo" data-page="catalogo">Catálogo</a></li>
+          <li><a href="#categorias" data-page="categorias">Categorias</a></li>
+          <li><a href="#sobre" data-page="sobre">Sobre</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main id="app"></main>
+
+  <div class="modal-overlay" id="modalOverlay" role="dialog" aria-modal="true">
+    <div class="modal" role="document">
+      <div class="modal-header">
+        <div class="modal-title" id="modalTitle">Título</div>
+        <button class="modal-close" id="modalClose" aria-label="Fechar">&times;</button>
+      </div>
+      <div class="modal-body" id="modalBody"></div>
+    </div>
+  </div>
+
+  <div class="spinner-overlay" id="app-loading" style="display: none;">
+    <div class="spinner"></div>
+  </div>
+
+  <div class="menu-overlay" id="menuOverlay"></div>
+
+  <footer>
+    <p>&copy; <span id="year"></span> Guia de Serviços. Todos os direitos reservados.</p>
+  </footer>
+
+  <script>
+    /* ================= UTILS ================= */
+
+    class Constants {
+      static ROUTES = {
+        INICIO: 'inicio',
+        CATALOGO: 'catalogo',
+        CATEGORIAS: 'categorias',
+        SOBRE: 'sobre'
+      };
+      static CATEGORIES = [
+        { id: 'tecnologia', name: 'Tecnologia', icon: '💻', subcategories: ['Desenvolvimento Web', 'Suporte Técnico', 'Redes e Wi-Fi', 'Consultoria em TI'] },
+        { id: 'design', name: 'Design & Criativo', icon: '🎨', subcategories: ['Identidade Visual', 'UI/UX Design', 'Motion Graphics', 'Ilustração'] },
+        { id: 'saude', name: 'Saúde & Bem-estar', icon: '🩺', subcategories: ['Fisioterapia', 'Nutrição', 'Personal Trainer', 'Psicologia'] },
+        { id: 'casa', name: 'Casa & Construção', icon: '🏠', subcategories: ['Reformas', 'Elétrica', 'Hidráulica', 'Jardinagem'] },
+        { id: 'eventos', name: 'Eventos & Entretenimento', icon: '🎉', subcategories: ['Fotografia', 'Filmagem', 'DJ e Som', 'Buffet'] },
+        { id: 'automotivo', name: 'Automotivo', icon: '🚗', subcategories: ['Mecânica', 'Funilaria', 'Estética Automotiva', 'Vistoria'] }
+      ];
+      static SERVICES = [
+        { id: 1, title: 'Criação de Sites Profissionais', category: 'tecnologia', subcategory: 'Desenvolvimento Web', premium: true, price: 'A partir de R$ 1.200', rating: 4.9, description: 'Sites modernos, responsivos e otimizados para SEO. Do landing page ao e-commerce.', phone: '11999990001', whatsapp: '11999990001', email: 'dev1@exemplo.com', instagram: 'web_exemplo' },
+        { id: 2, title: 'Suporte Técnico Remoto', category: 'tecnologia', subcategory: 'Suporte Técnico', premium: false, price: 'R$ 80/hora', rating: 4.7, description: 'Resolução de problemas de software, instalação de programas e remoção de vírus.', phone: '11999990002', whatsapp: '11999990002', email: 'suporte@exemplo.com', instagram: 'tech_suporte' },
+        { id: 3, title: 'Consultoria em Segurança da Informação', category: 'tecnologia', subcategory: 'Consultoria em TI', premium: true, price: 'Sob consulta', rating: 4.8, description: 'Análise de vulnerabilidades, políticas de segurança e treinamento para equipes.', phone: '11999990003', whatsapp: '11999990003', email: 'seguranca@exemplo.com', instagram: 'cyber_exemplo' },
+        { id: 4, title: 'Instalação de Redes Wi-Fi Mesh', category: 'tecnologia', subcategory: 'Redes e Wi-Fi', premium: false, price: 'R$ 350', rating: 4.6, description: 'Configuração de roteadores e extensores para cobertura total em casa ou empresa.', phone: '11999990004', whatsapp: '11999990004', email: 'redes@exemplo.com', instagram: 'wifi_pro' },
+        { id: 5, title: 'Identidade Visual Completa', category: 'design', subcategory: 'Identidade Visual', premium: true, price: 'A partir de R$ 900', rating: 4.9, description: 'Logo, paleta de cores, tipografia e manual de marca para o seu negócio.', phone: '11999990005', whatsapp: '11999990005', email: 'marca@exemplo.com', instagram: 'design_marca' },
+        { id: 6, title: 'Prototipagem de Interfaces', category: 'design', subcategory: 'UI/UX Design', premium: false, price: 'R$ 150/tela', rating: 4.7, description: 'Wireframes e protótipos navegáveis para validar ideias antes do desenvolvimento.', phone: '11999990006', whatsapp: '11999990006', email: 'ux@exemplo.com', instagram: 'ux_exemplo' },
+        { id: 7, title: 'Animação de Vídeos Promocionais', category: 'design', subcategory: 'Motion Graphics', premium: true, price: 'A partir de R$ 1.500', rating: 4.8, description: 'Vídeos animados para redes sociais, apresentações e campanhas publicitárias.', phone: '11999990007', whatsapp: '11999990007', email: 'motion@exemplo.com', instagram: 'motion_studio' },
+        { id: 8, title: 'Ilustrações Personalizadas', category: 'design', subcategory: 'Ilustração', premium: false, price: 'R$ 200/ilustração', rating: 4.8, description: 'Ilustrações digitais exclusivas para presentes, livros e conteúdo de marca.', phone: '11999990008', whatsapp: '11999990008', email: 'arte@exemplo.com', instagram: 'ilustra_art' },
+        { id: 9, title: 'Fisioterapia Domiciliar', category: 'saude', subcategory: 'Fisioterapia', premium: false, price: 'R$ 180/hora', rating: 4.9, description: 'Atendimento de fisioterapia no conforto da sua casa, com plano personalizado.', phone: '11999990009', whatsapp: '11999990009', email: 'fisio@exemplo.com', instagram: 'fisio_casa' },
+        { id: 10, title: 'Consultoria Nutricional Online', category: 'saude', subcategory: 'Nutrição', premium: true, price: 'R$ 250/mês', rating: 4.8, description: 'Planos alimentares individualizados e acompanhamento semanal por vídeo.', phone: '11999990010', whatsapp: '11999990010', email: 'nutri@exemplo.com', instagram: 'nutri_vida' },
+        { id: 11, title: 'Personal Trainer ao Ar Livre', category: 'saude', subcategory: 'Personal Trainer', premium: false, price: 'R$ 120/aula', rating: 4.7, description: 'Treinos funcionais em parques e praças, adaptados ao seu nível físico.', phone: '11999990011', whatsapp: '11999990011', email: 'treino@exemplo.com', instagram: 'personal_fit' },
+        { id: 12, title: 'Psicoterapia Online', category: 'saude', subcategory: 'Psicologia', premium: true, price: 'R$ 200/hora', rating: 4.9, description: 'Sessões de psicoterapia por vídeo com agendamento flexível e sigilo profissional.', phone: '11999990012', whatsapp: '11999990012', email: 'psi@exemplo.com', instagram: 'psi_online' },
+        { id: 13, title: 'Reforma de Apartamentos', category: 'casa', subcategory: 'Reformas', premium: true, price: 'Sob orçamento', rating: 4.6, description: 'Reformas integrais, pintura, revestimentos e acabamentos de qualidade.', phone: '11999990013', whatsapp: '11999990013', email: 'reforma@exemplo.com', instagram: 'reforma_total' },
+        { id: 14, title: 'Instalação Elétrica Residencial', category: 'casa', subcategory: 'Elétrica', premium: false, price: 'R$ 280', rating: 4.7, description: 'Instalação de tomadas, lustres, quadros de distribuição e revisões elétricas.', phone: '11999990014', whatsapp: '11999990014', email: 'eletrica@exemplo.com', instagram: 'eletrica_pro' },
+        { id: 15, title: 'Encanador 24 Horas', category: 'casa', subcategory: 'Hidráulica', premium: false, price: 'R$ 180', rating: 4.5, description: 'Desentupimento, reparos em torneiras, instalação de louças e caixa d’água.', phone: '11999990015', whatsapp: '11999990015', email: 'encanador@exemplo.com', instagram: 'hidro_rapido' },
+        { id: 16, title: 'Jardinagem e Paisagismo', category: 'casa', subcategory: 'Jardinagem', premium: true, price: 'A partir de R$ 300', rating: 4.8, description: 'Projeto e manutenção de jardins, podas, plantio e irrigação.', phone: '11999990016', whatsapp: '11999990016', email: 'jardim@exemplo.com', instagram: 'jardim_lindo' },
+        { id: 17, title: 'Fotografia de Eventos', category: 'eventos', subcategory: 'Fotografia', premium: true, price: 'A partir de R$ 1.800', rating: 4.9, description: 'Cobertura fotográfica de festas, casamentos e eventos corporativos.', phone: '11999990017', whatsapp: '11999990017', email: 'foto@exemplo.com', instagram: 'foto_eventos' },
+        { id: 18, title: 'Filmagem e Edição de Vídeo', category: 'eventos', subcategory: 'Filmagem', premium: false, price: 'R$ 900/evento', rating: 4.7, description: 'Captura e edição profissional de vídeos para eventos e produtos.', phone: '11999990018', whatsapp: '11999990018', email: 'video@exemplo.com', instagram: 'video_prod' },
+        { id: 19, title: 'DJ para Festas e Eventos', category: 'eventos', subcategory: 'DJ e Som', premium: true, price: 'R$ 1.200/noite', rating: 4.8, description: 'Som, iluminação e playlist personalizada para festas de todos os tamanhos.', phone: '11999990019', whatsapp: '11999990019', email: 'dj@exemplo.com', instagram: 'dj_festa' },
+        { id: 20, title: 'Buffet para Festas', category: 'eventos', subcategory: 'Buffet', premium: false, price: 'R$ 60/pessoa', rating: 4.6, description: 'Cardápios variados com entrada, pratos principais e sobremesas para eventos.', phone: '11999990020', whatsapp: '11999990020', email: 'buffet@exemplo.com', instagram: 'buffet_festas' }
+      ];
+    }
+
+    class Helpers {
+      static slug(text) {
+        return text.toString().normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+      }
+      static normalize(text) {
+        return text.toString().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim();
+      }
+      static categoryName(id) {
+        const cat = Constants.CATEGORIES.find(c => c.id === id);
+        return cat ? cat.name : id;
+      }
+      static starRating(rating) {
+        const full = Math.floor(rating);
+        return '★'.repeat(full) + '☆'.repeat(5 - full) + ` ${rating}`;
+      }
+      static actionButtons(service) {
+        const encoded = encodeURIComponent(`Olá! Tenho interesse no serviço: ${service.title}`);
+        return [
+          { label: 'WhatsApp', href: `https://wa.me/55${service.whatsapp}?text=${encoded}`, class: 'btn-primary', icon: '💬' },
+          { label: 'Telefone', href: `tel:+55${service.phone}`, class: 'btn-outline', icon: '📞' },
+          { label: 'Email', href: `mailto:${service.email}`, class: 'btn-outline', icon: '✉️' },
+          { label: 'Instagram', href: `https://instagram.com/${service.instagram}`, class: 'btn-secondary', icon: '📸' }
+        ];
+      }
+      static debounce(fn, ms) {
+        let t;
+        return (...args) => {
+          clearTimeout(t);
+          t = setTimeout(() => fn(...args), ms);
+        };
+      }
+    }
+
+    /* ================= SERVICES ================= */
+
+    class SheetService {
+      static async fetchFromAPI(url, fallbackData) {
+        try {
+          const response = await fetch(url);
+          if (!response.ok) throw new Error(`HTTP ${response.status}`);
+          return await response.json();
+        } catch (error) {
+          console.error(`Falha ao carregar ${url}:`, error);
+          return fallbackData;
+        }
+      }
+
+      static async getServices() {
+        return this.fetchFromAPI('/api/services', Constants.SERVICES);
+      }
+      static async getCategories() {
+        return this.fetchFromAPI('/api/categories', Constants.CATEGORIES);
+      }
+      static async getServiceById(id) {
+        const services = await this.getServices();
+        return services.find(s => s.id === id) || null;
+      }
+      static async getServicesByCategory(categoryId) {
+        try {
+          const response = await fetch(`/api/services?category=${encodeURIComponent(categoryId)}`);
+          if (!response.ok) throw new Error(`HTTP ${response.status}`);
+          return await response.json();
+        } catch (error) {
+          console.error(`Falha ao carregar serviços por categoria:`, error);
+          return Constants.SERVICES.filter(s => s.category === categoryId);
+        }
+      }
+    }
+
+    class FilterService {
+      static filter(services, text = '', categoryId = '') {
+        const q = Helpers.normalize(text);
+        return services.filter(s => {
+          const matchText = !q ||
+            Helpers.normalize(s.title).includes(q) ||
+            Helpers.normalize(s.description).includes(q) ||
+            Helpers.normalize(s.subcategory).includes(q) ||
+            Helpers.normalize(Helpers.categoryName(s.category)).includes(q);
+          const matchCategory = !categoryId || s.category === categoryId;
+          return matchText && matchCategory;
+        });
+      }
+    }
+
+    class ModalService {
+      constructor() {
+        this.overlay = document.getElementById('modalOverlay');
+        this.title = document.getElementById('modalTitle');
+        this.body = document.getElementById('modalBody');
+        this.closeBtn = document.getElementById('modalClose');
+        this.bindEvents();
+      }
+      bindEvents() {
+        this.closeBtn.addEventListener('click', () => this.close());
+        this.overlay.addEventListener('click', e => { if (e.target === this.overlay) this.close(); });
+        document.addEventListener('keydown', e => { if (e.key === 'Escape') this.close(); });
+      }
+      open(title, contentHTML, onClose = null) {
+        this.title.textContent = title;
+        this.body.innerHTML = contentHTML;
+        this.overlay.classList.add('open');
+        document.body.style.overflow = 'hidden';
+        this.onClose = onClose;
+      }
+      close() {
+        this.overlay.classList.remove('open');
+        document.body.style.overflow = '';
+        if (typeof this.onClose === 'function') this.onClose();
+      }
+    }
+
+    /* ================= PAGE OBJECTS ================= */
+
+    class BasePage {
+      constructor(container, modalService) {
+        this.container = container;
+        this.modal = modalService;
+      }
+      render() { throw new Error('render() deve ser implementado'); }
+      buildServiceModal(service) {
+        const buttons = Helpers.actionButtons(service).map(b =>
+          `<a class="btn ${b.class} btn-small" href="${b.href}" target="_blank" rel="noopener noreferrer">${b.icon} ${b.label}</a>`
+        ).join('');
+        return `
+          <div class="modal-image">🛠️</div>
+          <div class="modal-description">${service.description}</div>
+          <div class="modal-meta">
+            <div><strong>Categoria</strong><br>${Helpers.categoryName(service.category)}</div>
+            <div><strong>Subcategoria</strong><br>${service.subcategory}</div>
+            <div><strong>Preço</strong><br><span class="price">${service.price}</span></div>
+            <div><strong>Avaliação</strong><br>${Helpers.starRating(service.rating)}</div>
+          </div>
+          <div class="modal-actions">${buttons}</div>
+        `;
+      }
+    }
+
+    class IndexPage extends BasePage {
+      render(params = {}) {
+        const search = params.q || '';
+        this.container.innerHTML = `
+          <section class="hero">
+            <h2>Bem-vindo ao Guia de Serviços</h2>
+            <p>Encontre profissionais qualificados de tecnologia, design, saúde, casa, eventos e automotivo em um só lugar.</p>
+            <div class="actions">
+              <a href="#catalogo" class="btn btn-primary">Explorar Catálogo</a>
+              <a href="#categorias" class="btn btn-outline">Ver Categorias</a>
+            </div>
+          </section>
+          <div id="home-search-results"></div>
+        `;
+        if (search) {
+          const resultsEl = document.getElementById('home-search-results');
+          resultsEl.innerHTML = '<div class="spinner" style="margin: 2rem auto;"></div>';
+          (async () => {
+            try {
+              const services = await SheetService.getServices();
+              const filtered = FilterService.filter(services, search);
+              if (filtered.length) {
+                resultsEl.innerHTML = `<h3 class="page-title">Resultados para "${search}"</h3>` + this.renderServiceList(filtered);
+                this.bindServiceList(resultsEl);
+              } else {
+                resultsEl.innerHTML = `<div class="empty-state"><h3>Nenhum resultado</h3><p>Não encontramos serviços para "${search}".</p></div>`;
+              }
+            } catch (error) {
+              resultsEl.innerHTML = '<div class="empty-state"><h3>Erro ao carregar</h3><p>Não foi possível carregar os dados. Tente novamente mais tarde.</p></div>';
+            }
+          })();
+        }
+      }
+      renderServiceList(services) {
+        return `<ul class="service-list">${services.map(s => `
+          <li class="service-item" data-id="${s.id}">
+            <div>
+              <h3>${s.title}</h3>
+              <p>${s.subcategory} &bull; ${Helpers.categoryName(s.category)}</p>
+            </div>
+            <div class="meta">
+              ${s.premium ? '<span class="badge badge-premium">Premium</span>' : ''}
+              <span class="badge badge-category">${Helpers.categoryName(s.category)}</span>
+              <span class="price">${s.price}</span>
+            </div>
+          </li>
+        `).join('')}</ul>`;
+      }
+      bindServiceList(root) {
+        root.querySelectorAll('.service-item').forEach(item => {
+          item.addEventListener('click', async () => {
+            const id = Number(item.dataset.id);
+            const service = await SheetService.getServiceById(id);
+            if (service) this.modal.open(service.title, this.buildServiceModal(service));
+          });
+        });
+      }
+    }
+
+    class CatalogoPage extends BasePage {
+      render(params = {}) {
+        const category = params.categoria || '';
+        const query = params.q || '';
+        // Premium section now appears FIRST
+        this.container.innerHTML = `
+          <h2 class="page-title">Catálogo de Serviços</h2>
+          <div class="filters">
+            <input type="text" id="catalog-search" placeholder="Buscar serviços..." value="${query}">
+            <select id="catalog-category">
+              <option value="">Todas as categorias</option>
+              ${Constants.CATEGORIES.map(c => `<option value="${c.id}" ${c.id === category ? 'selected' : ''}>${c.name}</option>`).join('')}
+            </select>
+            <button class="btn btn-outline btn-small" id="catalog-clear">Limpar filtros</button>
+          </div>
+          <div class="premium-section">
+            <h2>⭐ Serviços Premium</h2>
+            <div id="premium-grid" class="premium-grid"></div>
+          </div>
+          <div id="catalog-list"></div>
+        `;
+        this.searchInput = document.getElementById('catalog-search');
+        this.categorySelect = document.getElementById('catalog-category');
+        this.clearBtn = document.getElementById('catalog-clear');
+        this.listEl = document.getElementById('catalog-list');
+        this.gridEl = document.getElementById('premium-grid');
+        this.bindControls();
+        this.load();
+      }
+      bindControls() {
+        const update = () => {
+          const q = this.searchInput.value;
+          const cat = this.categorySelect.value;
+          AppRouter.updateHash({ page: 'catalogo', q, categoria: cat });
+        };
+        this.searchInput.addEventListener('input', Helpers.debounce(update, 250));
+        this.categorySelect.addEventListener('change', update);
+        this.clearBtn.addEventListener('click', () => {
+          this.searchInput.value = '';
+          this.categorySelect.value = '';
+          AppRouter.updateHash({ page: 'catalogo', q: '', categoria: '' });
+        });
+      }
+      async load() {
+        this.listEl.innerHTML = '<div class="spinner" style="margin: 2rem auto;"></div>';
+        this.gridEl.innerHTML = '';
+        try {
+          const services = await SheetService.getServices();
+          const q = this.searchInput.value;
+          const cat = this.categorySelect.value;
+          const filtered = FilterService.filter(services, q, cat);
+          this.renderList(filtered);
+          const premium = FilterService.filter(services.filter(s => s.premium), q, cat);
+          this.renderGrid(premium);
+        } catch (error) {
+          this.listEl.innerHTML = '<div class="empty-state"><h3>Erro ao carregar</h3><p>Não foi possível carregar os serviços.</p></div>';
+          this.gridEl.innerHTML = '';
+        }
+      }
+      renderList(services) {
+        if (!services.length) {
+          this.listEl.innerHTML = '<div class="empty-state"><h3>Nenhum serviço encontrado</h3><p>Tente ajustar os filtros de busca ou categoria.</p></div>';
+          return;
+        }
+        this.listEl.innerHTML = `<ul class="service-list">${services.map(s => `
+          <li class="service-item" data-id="${s.id}">
+            <div>
+              <h3>${s.title}</h3>
+              <p>${s.description}</p>
+            </div>
+            <div class="meta">
+              ${s.premium ? '<span class="badge badge-premium">Premium</span>' : ''}
+              <span class="badge badge-category">${Helpers.categoryName(s.category)}</span>
+              <span class="price">${s.price}</span>
+            </div>
+          </li>
+        `).join('')}</ul>`;
+        this.listEl.querySelectorAll('.service-item').forEach(item => {
+          item.addEventListener('click', async () => {
+            const service = await SheetService.getServiceById(Number(item.dataset.id));
+            if (service) this.modal.open(service.title, this.buildServiceModal(service));
+          });
+        });
+      }
+      renderGrid(services) {
+        if (!services.length) {
+          this.gridEl.innerHTML = '<div class="empty-state"><h3>Nenhum serviço premium encontrado</h3></div>';
+          return;
+        }
+        this.gridEl.innerHTML = services.map(s => `
+          <article class="premium-card" data-id="${s.id}">
+            <div class="thumb">💎</div>
+            <span class="badge badge-premium">Premium</span>
+            <div class="body">
+              <h4>${s.title}</h4>
+              <p>${Helpers.categoryName(s.category)} &bull; ${s.price}</p>
+            </div>
+          </article>
+        `).join('');
+        this.gridEl.querySelectorAll('.premium-card').forEach(card => {
+          card.addEventListener('click', async () => {
+            const service = await SheetService.getServiceById(Number(card.dataset.id));
+            if (service) this.modal.open(service.title, this.buildServiceModal(service));
+          });
+        });
+      }
+    }
+
+    class CategoriasPage extends BasePage {
+      render() {
+        this.container.innerHTML = `<h2 class="page-title">Categorias</h2><div id="category-grid" class="category-grid"></div>`;
+        this.gridEl = document.getElementById('category-grid');
+        this.load();
+      }
+      async load() {
+        this.gridEl.innerHTML = '<div class="spinner" style="margin: 2rem auto;"></div>';
+        try {
+          const categories = await SheetService.getCategories();
+          this.gridEl.innerHTML = categories.map(c => `
+            <article class="category-card" data-id="${c.id}">
+              <div class="icon">${c.icon}</div>
+              <h3>${c.name}</h3>
+              <span>${c.subcategories.length} subcategorias</span>
+            </article>
+          `).join('');
+          this.gridEl.querySelectorAll('.category-card').forEach(card => {
+            card.addEventListener('click', () => this.openCategoryModal(card.dataset.id));
+          });
+        } catch (error) {
+          this.gridEl.innerHTML = '<div class="empty-state"><h3>Erro ao carregar categorias</h3><p>Não foi possível carregar as categorias.</p></div>';
+        }
+      }
+      openCategoryModal(id) {
+        const category = Constants.CATEGORIES.find(c => c.id === id);
+        if (!category) return;
+        const subList = category.subcategories.map(s => `<li>${s}</li>`).join('');
+        const content = `
+          <p><strong>${category.name}</strong> reúne ${category.subcategories.length} subcategorias de serviços.</p>
+          <ul class="subcategory-list">${subList}</ul>
+          <div class="actions" style="margin-top:1.25rem; justify-content:flex-start;">
+            <a href="#catalogo?categoria=${category.id}" class="btn btn-primary">Ver serviços de ${category.name}</a>
+          </div>
+        `;
+        this.modal.open(category.name, content);
+      }
+    }
+
+    class SobrePage extends BasePage {
+      render() {
+        this.container.innerHTML = `
+          <h2 class="page-title">Sobre</h2>
+          <div class="about-content">
+            <h2>Guia de Serviços</h2>
+            <p>Somos um diretório moderno que conecta você aos melhores profissionais de diversas áreas. Nossa plataforma foi construída como uma Single Page Application (SPA), oferecendo navegação rápida e fluida sem recarregar a página.</p>
+            <h2>Como funciona?</h2>
+            <ul>
+              <li>Navegue pelo catálogo ou pelas categorias.</li>
+              <li>Filtre por texto ou categoria.</li>
+              <li>Clique em um serviço para ver detalhes completos.</li>
+              <li>Entre em contato direto por WhatsApp, telefone, e-mail ou Instagram.</li>
+            </ul>
+            <h2>Áreas disponíveis</h2>
+            <p>Tecnologia, Design & Criativo, Saúde & Bem-estar, Casa & Construção, Eventos & Entretenimento e Automotivo.</p>
+          </div>
+        `;
+      }
+    }
+
+    /* ================= ROUTER ================= */
+
+    class AppRouter {
+      constructor(container, modal) {
+        this.container = container;
+        this.modal = modal;
+        this.pages = {
+          [Constants.ROUTES.INICIO]: new IndexPage(container, modal),
+          [Constants.ROUTES.CATALOGO]: new CatalogoPage(container, modal),
+          [Constants.ROUTES.CATEGORIAS]: new CategoriasPage(container, modal),
+          [Constants.ROUTES.SOBRE]: new SobrePage(container, modal)
+        };
+        this.bindGlobalSearch();
+        window.addEventListener('hashchange', () => this.route());
+        this.route();
+      }
+      static updateHash(params) {
+        const page = params.page || 'inicio';
+        const search = new URLSearchParams();
+        if (params.q) search.set('q', params.q);
+        if (params.categoria) search.set('categoria', params.categoria);
+        const qs = search.toString();
+        location.hash = `#${page}${qs ? '?' + qs : ''}`;
+      }
+      parseHash() {
+        const raw = location.hash.replace('#', '') || 'inicio';
+        const [page, qs] = raw.split('?');
+        const params = new URLSearchParams(qs || '');
+        return { page: page || 'inicio', params: Object.fromEntries(params.entries()) };
+      }
+      route() {
+        const { page, params } = this.parseHash();
+        const pageInstance = this.pages[page] || this.pages[Constants.ROUTES.INICIO];
+        pageInstance.render(params);
+        this.updateNav(page);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+      updateNav(active) {
+        document.querySelectorAll('.main-nav a').forEach(a => {
+          a.classList.toggle('active', a.dataset.page === active);
+        });
+      }
+      bindGlobalSearch() {
+        const input = document.getElementById('globalSearch');
+        input.addEventListener('keydown', e => {
+          if (e.key === 'Enter') {
+            AppRouter.updateHash({ page: 'inicio', q: input.value.trim() });
+          }
+        });
+      }
+    }
+
+    /* ================= INIT ================= */
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      document.getElementById('year').textContent = new Date().getFullYear();
+      const modal = new ModalService();
+      const container = document.getElementById('app');
+      const loadingEl = document.getElementById('app-loading');
+      loadingEl.style.display = 'flex';
+      try {
+        await Promise.all([SheetService.getServices(), SheetService.getCategories()]);
+      } catch (error) {
+        // data já usa fallback se a API falhar
+      }
+      loadingEl.style.display = 'none';
+      new AppRouter(container, modal);
+
+      // Mobile menu toggle
+      const menuToggle = document.getElementById('menuToggle');
+      const mainNav = document.getElementById('mainNav');
+      const menuOverlay = document.getElementById('menuOverlay');
+
+      function openMenu() {
+        mainNav.classList.add('open');
+        menuOverlay.classList.add('active');
+        menuToggle.setAttribute('aria-expanded', 'true');
+        document.body.style.overflow = 'hidden';
+      }
+
+      function closeMenu() {
+        mainNav.classList.remove('open');
+        menuOverlay.classList.remove('active');
+        menuToggle.setAttribute('aria-expanded', 'false');
+        document.body.style.overflow = '';
+      }
+
+      menuToggle.addEventListener('click', () => {
+        if (mainNav.classList.contains('open')) {
+          closeMenu();
+        } else {
+          openMenu();
+        }
+      });
+
+      menuOverlay.addEventListener('click', closeMenu);
+
+      mainNav.querySelectorAll('a').forEach(link => {
+        link.addEventListener('click', closeMenu);
+      });
+
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && mainNav.classList.contains('open')) closeMenu();
+      });
+    });
+  </script>
+</body>
+</html>

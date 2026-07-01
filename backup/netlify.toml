@@ -1,0 +1,10 @@
+[build]
+  command = "pip install -r requirements.txt"
+  functions = "netlify/functions"
+  publish = "dist"
+
+[build.environment]
+  PYTHON_VERSION = "3.8"
+  ML_CLIENT_ID = "4741553669275522"
+  ML_CLIENT_SECRET = "PtKuYUANhWFT7bBdRYipk7oWrzWD4H2E"
+  ML_REDIRECT_URI = "https://catalogoup.netlify.app/callback"
