@@ -3,5 +3,24 @@
   functions = "netlify/functions"
   publish = "public"
 
+[functions]
+  directory = "netlify/functions"
+  python_version = "3.8"
+
 [env.production]
-  environment = { GOOGLE_SHEETS_KEY = "1HP8Td06AIEkLcZVlB11767muts_nlZU9_-sWYS_GMNg", GOOGLE_CREDENTIALS_PATH = "credentials.json" }
+  environment = { GOOGLE_SHEETS_KEY = "1HP8Td06AIEkLcZVlB11767muts_nlZU9_-sWYS_GMNg", GOOGLE_CREDENTIALS_PATH = "credentials.json", MERCADO_LIVRE_CLIENT_ID = "", MERCADO_LIVRE_CLIENT_SECRET = "", MERCADO_LIVRE_REDIRECT_URI = "", MERCADO_LIVRE_REFRESH_TOKEN = "", MERCADO_LIVRE_ACCESS_TOKEN = "" }
+
+[context.production]
+  command = "pip install -r requirements.txt"
+  functions = "netlify/functions"
+  publish = "public"
+
+[context.deploy-preview]
+  command = "pip install -r requirements.txt"
+  functions = "netlify/functions"
+  publish = "public"
+
+[context.branch-deploy]
+  command = "pip install -r requirements.txt"
+  functions = "netlify/functions"
+  publish = "public"
