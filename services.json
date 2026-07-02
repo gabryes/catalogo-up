@@ -1,0 +1,95 @@
+{
+  "config": {
+    "affiliate_id": "AFF-ML-987654321",
+    "ultima_sincronizacao_geral": "2023-10-27T14:30:00Z",
+    "proxima_sincronizacao": "2023-10-27T18:30:00Z",
+    "status_sincronizacao": "ativo"
+  },
+  "categories": [
+    {
+      "id": "cat_eletronicos",
+      "name": "Eletrônicos",
+      "services": [
+        {
+          "id": "srv_001",
+          "name": "Smartphone Samsung Galaxy S23",
+          "description": "Smartphone Samsung Galaxy S23 256GB 5G Wi-Fi Tela 6.1'' 8GB RAM Câmera Tripla Traseira + Selfie 12MP - Preto",
+          "ml_product_id": "MLB3245678901",
+          "ml_link_afiliado": "https://mercadolivre.com/sec/affiliate_example_1",
+          "ml_preco": 3499.00,
+          "ml_disponibilidade": true,
+          "ml_ultima_sincronizacao": "2023-10-27T14:25:00Z",
+          "ml_comissao_estimada": 5.5
+        },
+        {
+          "id": "srv_002",
+          "name": "Apple iPhone 15 Pro Max",
+          "description": "iPhone 15 Pro Max 256GB Titânio Natural",
+          "ml_product_id": null,
+          "ml_link_afiliado": "",
+          "ml_preco": 0.0,
+          "ml_disponibilidade": false,
+          "ml_ultima_sincronizacao": null,
+          "ml_comissao_estimada": 0.0
+        }
+      ]
+    },
+    {
+      "id": "cat_eletrodomesticos",
+      "name": "Eletrodomésticos",
+      "services": [
+        {
+          "id": "srv_003",
+          "name": "Fritadeira Elétrica Air Fryer Mondial",
+          "description": "Fritadeira Elétrica Sem Óleo Air Fryer Mondial Family AFN-40-BI 4L - Preta/Inox",
+          "ml_product_id": "MLB1122334455",
+          "ml_link_afiliado": "https://mercadolivre.com/sec/affiliate_example_2",
+          "ml_preco": 389.90,
+          "ml_disponibilidade": true,
+          "ml_ultima_sincronizacao": "2023-10-27T14:28:00Z",
+          "ml_comissao_estimada": 8.0
+        },
+        {
+          "id": "srv_004",
+          "name": "Geladeira Frost Free Brastemp",
+          "description": "Geladeira Brastemp Frost Free Inverse 443 Litros cor Inox com Turbo Ice",
+          "ml_product_id": null,
+          "ml_link_afiliado": "",
+          "ml_preco": 0.0,
+          "ml_disponibilidade": false,
+          "ml_ultima_sincronizacao": null,
+          "ml_comissao_estimada": 0.0
+        }
+      ]
+    },
+    {
+      "id": "cat_sanitario",
+      "name": "Sanitário",
+      "services": [
+        {
+          "id": "srv_005",
+          "name": "Extingo Pragas",
+          "description": "Dedetização, desratização, controle de insetos voadores, barreira química e higienização de caixa d'água",
+          "responsible": "Extingo Pragas",
+          "phone": "(86) 99537-3501",
+          "whatsapp": "(86) 99537-3501",
+          "email": "extingpragas@gmail.com",
+          "address": "Por agendamento",
+          "business_hours": "08:00 - 22:00",
+          "instagram": "@Extingopragas",
+          "photo_url": "",
+          "status": "Ativo",
+          "advertising": "Não",
+          "registration_date": "07/02/2026",
+          "observations": "",
+          "ml_product_id": null,
+          "ml_link_afiliado": "",
+          "ml_preco": 0.0,
+          "ml_disponibilidade": true,
+          "ml_ultima_sincronizacao": null,
+          "ml_comissao_estimada": 0.0
+        }
+      ]
+    }
+  ]
+}
