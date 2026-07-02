@@ -7,17 +7,17 @@
 
 [build.environment]
   PYTHON_VERSION = "3.14"
-  GOOGLE_SHEETS_KEY = ""
+  GOOGLE_SHEETS_KEY = "1Fbq6Z2APOTvWJdBiO5v_MxA7uaU8SXYnI26T2KkWLtI"
   GOOGLE_CREDENTIALS_PATH = "credentials.json"
 
 # Variáveis de ambiente para Google Sheets (contexto de produção)
 [context.production.environment]
-  GOOGLE_SHEETS_KEY = ""
+  GOOGLE_SHEETS_KEY = "1Fbq6Z2APOTvWJdBiO5v_MxA7uaU8SXYnI26T2KkWLtI"
   GOOGLE_CREDENTIALS_PATH = "credentials.json"
 
 # Variáveis de ambiente para Google Sheets (contexto de deploy preview)
 [context.deploy-preview.environment]
-  GOOGLE_SHEETS_KEY = ""
+  GOOGLE_SHEETS_KEY = "1Fbq6Z2APOTvWJdBiO5v_MxA7uaU8SXYnI26T2KkWLtI"
   GOOGLE_CREDENTIALS_PATH = "credentials.json"
 
 # Redirects para SPA - redireciona 404s para index.html

@@ -2,18 +2,6 @@
 """
 build.py - Catálogo UP
 Gera um site estático a partir de dados de uma planilha Google Sheets.
-
-Uso:
-    python build.py
-
-Credenciais:
-    - Desenvolvimento local: arquivo credentials.json no diretório do script
-    - Netlify/produção: variável de ambiente GOOGLE_CREDENTIALS_PATH
-
-Planilha:
-    - ID definido na variável de ambiente GOOGLE_SHEETS_KEY
-    - Primeira aba (get_worksheet(0))
-    - Colunas: nome, categoria, descricao, telefone, email, endereco, horario, link, contato
 """
 
 import json
@@ -30,11 +18,7 @@ except ImportError:
     print("               Instale com: pip install gspread")
     sys.exit(1)
 
-
-# ---------------------------------------------------------------------------
 # Configurações
-# ---------------------------------------------------------------------------
-
 BASE_DIR = Path(__file__).resolve().parent
 PUBLIC_DIR = BASE_DIR / "public"
 
@@ -42,17 +26,12 @@ COBERTA_AZUL = "#0055D4"
 AZUL_MARINHO = "#0B1E40"
 
 COLUNAS_ESPERADAS = [
-    "nome", "categoria", "descricao", "telefone",
-    "email", "endereco", "horario", "link", "contato",
+    "id", "nome", "categoria", "responsavel", "telefone",
+    "whatsapp", "email", "endereco", "horario", "descricao", "instagram", "foto_logo_url", "publicidade",
 ]
 
-
-# ---------------------------------------------------------------------------
-# Utilidades
-# ---------------------------------------------------------------------------
-
+# Funções auxiliares
 def slugify(texto: str) -> str:
-    """Converte um texto em um slug seguro para URLs."""
     texto = (texto or "").strip().lower()
     texto = re.sub(r"[áàâãä]", "a", texto)
     texto = re.sub(r"[éèêë]", "e", texto)
@@ -65,9 +44,7 @@ def slugify(texto: str) -> str:
     texto = re.sub(r"^-+|-+$", "", texto)
     return texto or "servico"
 
-
 def escapa_html(texto: str) -> str:
-    """Escapa caracteres HTML para evitar quebra de layout."""
     if texto is None:
         return ""
     texto = str(texto)
@@ -79,9 +56,7 @@ def escapa_html(texto: str) -> str:
         .replace("'", "&#39;")
     )
 
-
 def garantir_unicos_slugs(servicos):
-    """Garante slugs únicos adicionando sufixo numérico quando necessário."""
     usados = set()
     for s in servicos:
         base = slugify(s.get("nome", "servico"))
@@ -94,11 +69,7 @@ def garantir_unicos_slugs(servicos):
         s["id"] = slug
     return servicos
 
-
-# ---------------------------------------------------------------------------
-# CSS / Templates
-# ---------------------------------------------------------------------------
-
+# CSS e Templates
 def css_base() -> str:
     return f"""
     * {{ box-sizing: border-box; margin: 0; padding: 0; }}
@@ -179,7 +150,6 @@ def css_base() -> str:
     .btn:hover {{ background: {AZUL_MARINHO}; }}
     """
 
-
 def cabecalho_html(titulo: str, prefix: str, subtitulo: str = "") -> str:
     return f"""<!DOCTYPE html>
 <html lang="pt-BR">
@@ -197,7 +167,6 @@ def cabecalho_html(titulo: str, prefix: str, subtitulo: str = "") -> str:
 <main>
 """
 
-
 def rodape_html() -> str:
     return """
 </main>
@@ -208,11 +177,7 @@ def rodape_html() -> str:
 </html>
 """
 
-
-# ---------------------------------------------------------------------------
 # Geração de páginas
-# ---------------------------------------------------------------------------
-
 def gerar_home(servicos, categorias):
     prefix = ""
     dados_json = json.dumps(
@@ -289,7 +254,6 @@ filtro.addEventListener('change', render);
     html += rodape_html()
     return html
 
-
 def gerar_lista_servicos(servicos, categorias):
     prefix = "../"
     opcoes_cat = "\n".join(
@@ -355,7 +319,6 @@ render();
     html += rodape_html()
     return html
 
-
 def gerar_detalhe_servico(servico):
     prefix = "../../"
     nome = servico.get("nome", "Serviço")
@@ -405,13 +368,8 @@ def gerar_detalhe_servico(servico):
     html += rodape_html()
     return html
 
-
-# ---------------------------------------------------------------------------
 # Leitura de dados
-# ---------------------------------------------------------------------------
-
 def obter_caminho_credenciais() -> str:
-    """Retorna o caminho do arquivo de credenciais do Google."""
     env_path = os.environ.get("GOOGLE_CREDENTIALS_PATH")
     if env_path and Path(env_path).exists():
         return env_path
@@ -426,9 +384,7 @@ def obter_caminho_credenciais() -> str:
         "ou coloque o arquivo credentials.json no diretório do projeto."
     )
 
-
 def ler_planilha():
-    """Lê os serviços da planilha Google Sheets e retorna uma lista de dicts."""
     print("[Catálogo UP] Lendo dados do Google Sheets...")
 
     sheet_key = os.environ.get("GOOGLE_SHEETS_KEY")
@@ -451,7 +407,7 @@ def ler_planilha():
         raise RuntimeError(f"Não foi possível abrir a planilha (ID: {sheet_key}): {e}")
 
     try:
-        worksheet = planilha.get_worksheet(0)
+        worksheet = planilha.worksheet("catalogo up")
     except Exception as e:
         raise RuntimeError(f"Não foi possível acessar a primeira aba da planilha: {e}")
 
@@ -463,21 +419,24 @@ def ler_planilha():
     except Exception as e:
         raise RuntimeError(f"Erro ao ler os registros da planilha: {e}")
 
+    # DEBUG ADICIONADO AQUI
+    if registros:
+        print(f"DEBUG: Nomes exatos das colunas encontradas: {list(registros[0].keys())}")
+        print(f"DEBUG: Exemplo do primeiro registro: {registros[0]}")
+    else:
+        print("DEBUG: A planilha parece estar vazia ou não foi possível ler os registros.")
+
     servicos = []
     for idx, linha in enumerate(registros, start=2):
-        # Normaliza chaves: lowercase e sem espaços
         linha_norm = {str(k).strip().lower(): v for k, v in linha.items()}
 
-        # Ignora linhas totalmente vazias
         if not any(str(v).strip() for v in linha_norm.values() if v is not None):
             continue
 
-        # Monta dict garantindo todas as colunas esperadas
         servico = {}
         for col in COLUNAS_ESPERADAS:
             servico[col] = str(linha_norm.get(col, "") or "").strip()
 
-        # Validação mínima: precisa ter nome
         if not servico["nome"]:
             print(f"  [aviso] Linha {idx} ignorada por não conter 'nome'.")
             continue
@@ -487,26 +446,18 @@ def ler_planilha():
     servicos = garantir_unicos_slugs(servicos)
     return servicos
 
-
-# ---------------------------------------------------------------------------
 # Geração do site
-# ---------------------------------------------------------------------------
-
 def preparar_diretorio_publico():
-    """Limpa e recria o diretório public/."""
     if PUBLIC_DIR.exists():
         shutil.rmtree(PUBLIC_DIR)
     PUBLIC_DIR.mkdir(parents=True, exist_ok=True)
     (PUBLIC_DIR / "services").mkdir(parents=True, exist_ok=True)
 
-
 def escrever_arquivo(caminho: Path, conteudo: str):
     caminho.parent.mkdir(parents=True, exist_ok=True)
     caminho.write_text(conteudo, encoding="utf-8")
 
-
 def gerar_site(servicos):
-    """Gera todos os arquivos HTML estáticos."""
     preparar_diretorio_publico()
 
     categorias = sorted({
@@ -516,27 +467,19 @@ def gerar_site(servicos):
     print(f"  -> {len(servicos)} serviços")
     print(f"  -> {len(categorias)} categorias")
 
-    # Página inicial
     escrever_arquivo(PUBLIC_DIR / "index.html", gerar_home(servicos, categorias))
-
-    # Lista de serviços
     escrever_arquivo(
         PUBLIC_DIR / "services" / "index.html",
         gerar_lista_servicos(servicos, categorias),
     )
 
-    # Detalhe de cada serviço
     for s in servicos:
         dir_servico = PUBLIC_DIR / "services" / s["id"]
         escrever_arquivo(dir_servico / "index.html", gerar_detalhe_servico(s))
 
     print("[Catálogo UP] Site estático gerado com sucesso em 'public/'.")
 
-
-# ---------------------------------------------------------------------------
 # Principal
-# ---------------------------------------------------------------------------
-
 def main():
     try:
         servicos = ler_planilha()
@@ -556,7 +499,6 @@ def main():
     except Exception as e:
         print(f"[Catálogo UP] ERRO inesperado: {e}")
         sys.exit(1)
-
 
 if __name__ == "__main__":
     main()

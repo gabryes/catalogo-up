@@ -95,7 +95,16 @@
   <input type="text" id="busca" placeholder="Buscar serviços..." autocomplete="off">
   <select id="filtro-categoria">
     <option value="">Todas as categorias</option>
-    
+    <option value="Alimentação">Alimentação</option>
+<option value="Beleza">Beleza</option>
+<option value="Comércio">Comércio</option>
+<option value="Consultoria">Consultoria</option>
+<option value="Costureira">Costureira</option>
+<option value="Educação">Educação</option>
+<option value="Instalação de Câmeras">Instalação de Câmeras</option>
+<option value="Provedor de Internet">Provedor de Internet</option>
+<option value="Saúde">Saúde</option>
+<option value="Serviços Gerais">Serviços Gerais</option>
   </select>
 </div>
 <div class="grid" id="lista-servicos"></div>
@@ -103,7 +112,7 @@
   Nenhum serviço encontrado.
 </div>
 <script>
-const SERVICOS = [{"id": "desenvolvimento", "nome": "Desenvolvimento", "categoria": "", "descricao": ""}, {"id": "suporte", "nome": "Suporte", "categoria": "", "descricao": ""}, {"id": "infraestrutura", "nome": "Infraestrutura", "categoria": "", "descricao": ""}, {"id": "ui-ux", "nome": "UI/UX", "categoria": "", "descricao": ""}, {"id": "grafico", "nome": "Gráfico", "categoria": "", "descricao": ""}, {"id": "marca", "nome": "Marca", "categoria": "", "descricao": ""}, {"id": "seo", "nome": "SEO", "categoria": "", "descricao": ""}, {"id": "redes-sociais", "nome": "Redes Sociais", "categoria": "", "descricao": ""}, {"id": "anuncios", "nome": "Anúncios", "categoria": "", "descricao": ""}, {"id": "negocios", "nome": "Negócios", "categoria": "", "descricao": ""}, {"id": "financeira", "nome": "Financeira", "categoria": "", "descricao": ""}, {"id": "juridica", "nome": "Jurídica", "categoria": "", "descricao": ""}, {"id": "nutricao", "nome": "Nutrição", "categoria": "", "descricao": ""}, {"id": "fisioterapia", "nome": "Fisioterapia", "categoria": "", "descricao": ""}, {"id": "psicologia", "nome": "Psicologia", "categoria": "", "descricao": ""}, {"id": "aulas", "nome": "Aulas", "categoria": "", "descricao": ""}, {"id": "cursos", "nome": "Cursos", "categoria": "", "descricao": ""}, {"id": "treinamentos", "nome": "Treinamentos", "categoria": "", "descricao": ""}, {"id": "confeccoes", "nome": "Confecções", "categoria": "", "descricao": ""}];
+const SERVICOS = [{"id": "maria-costureira", "nome": "Maria Costureira", "categoria": "Costureira", "descricao": "Costura, consertos e ajustes em geral"}, {"id": "netfast-internet", "nome": "NetFast Internet", "categoria": "Provedor de Internet", "descricao": "Provedor de internet de alta velocidade"}, {"id": "seguranca-total", "nome": "Segurança Total", "categoria": "Instalação de Câmeras", "descricao": "Instalação e manutenção de câmeras de segurança"}, {"id": "pizzaria-bella-italia", "nome": "Pizzaria Bella Italia", "categoria": "Alimentação", "descricao": "Pizzaria tradicional italiana com delivery"}, {"id": "clinica-saude-plena", "nome": "Clínica Saúde Plena", "categoria": "Saúde", "descricao": "Clínica geral com atendimento 24h"}, {"id": "instituto-educacao-plus", "nome": "Instituto Educação Plus", "categoria": "Educação", "descricao": "Cursos de idiomas e reforço escolar"}, {"id": "encanador-express", "nome": "Encanador Express", "categoria": "Serviços Gerais", "descricao": "Encanamento, hidráulica e manutenção"}, {"id": "salao-beleza-moderna", "nome": "Salão Beleza Moderna", "categoria": "Beleza", "descricao": "Cabelo, manicure, pedicure e estética"}, {"id": "consultoria-empresarial-xyz", "nome": "Consultoria Empresarial XYZ", "categoria": "Consultoria", "descricao": "Consultoria em gestão e estratégia empresarial"}, {"id": "eletricista-confiavel", "nome": "Eletricista Confiável", "categoria": "Serviços Gerais", "descricao": "Serviços elétricos residenciais e comerciais"}, {"id": "academia-forca-total", "nome": "Academia Força Total", "categoria": "Saúde", "descricao": "Academia de musculação e personal trainer"}, {"id": "loja-moda-elegancia", "nome": "Loja Moda Elegância", "categoria": "Comércio", "descricao": "Loja de roupas e acessórios femininos"}, {"id": "mecanica-do-joao", "nome": "Mecânica do João", "categoria": "Serviços Gerais", "descricao": "Mecânica geral e manutenção de veículos"}, {"id": "fotografia-momentos", "nome": "Fotografia Momentos", "categoria": "Serviços Gerais", "descricao": "Fotografia profissional para eventos"}, {"id": "padaria-pao-quente", "nome": "Padaria Pão Quente", "categoria": "Alimentação", "descricao": "Padaria artesanal com produtos frescos diários"}, {"id": "consultorio-odontologico-sorriso", "nome": "Consultório Odontológico Sorriso", "categoria": "Saúde", "descricao": "Odontologia geral e estética"}, {"id": "aulas-de-danca-studio", "nome": "Aulas de Dança Studio", "categoria": "Educação", "descricao": "Aulas de dança: ballet, jazz e contemporâneo"}, {"id": "limpeza-profissional", "nome": "Limpeza Profissional", "categoria": "Serviços Gerais", "descricao": "Limpeza residencial e comercial"}, {"id": "restaurante-sabor-caseiro", "nome": "Restaurante Sabor Caseiro", "categoria": "Alimentação", "descricao": "Restaurante com comida caseira e delivery"}];
 const busca = document.getElementById('busca');
 const filtro = document.getElementById('filtro-categoria');
 const lista = document.getElementById('lista-servicos');

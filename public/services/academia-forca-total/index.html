@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Academia Força Total | Catálogo UP</title>
+<style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      color: #0B1E40;
+      background: #f5f7fb;
+      line-height: 1.6;
+    }
+    header {
+      background: #0B1E40;
+      color: #fff;
+      padding: 1.5rem 1rem;
+      text-align: center;
+    }
+    header h1 { font-size: 1.6rem; font-weight: 700; }
+    header h1 a { color: #fff; text-decoration: none; }
+    header p { opacity: 0.8; margin-top: 0.3rem; font-size: 0.95rem; }
+    main { max-width: 960px; margin: 2rem auto; padding: 0 1rem; }
+    .barra-busca {
+      display: flex; flex-wrap: wrap; gap: 0.75rem; margin-bottom: 1.5rem;
+    }
+    .barra-busca input[type="text"],
+    .barra-busca select {
+      padding: 0.7rem 0.9rem; border: 1px solid #d0d7e2; border-radius: 8px;
+      font-size: 1rem; background: #fff; color: #0B1E40;
+    }
+    .barra-busca input[type="text"] { flex: 1 1 260px; }
+    .barra-busca select { flex: 0 1 220px; }
+    .barra-busca input:focus, .barra-busca select:focus {
+      outline: none; border-color: #0055D4;
+      box-shadow: 0 0 0 3px rgba(0,85,212,0.15);
+    }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 1rem; }
+    .card {
+      background: #fff; border-radius: 10px; padding: 1.2rem;
+      box-shadow: 0 1px 3px rgba(11,30,64,0.08);
+      border: 1px solid #e6ebf2; display: flex; flex-direction: column;
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+    .card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,85,212,0.18); }
+    .card h3 { color: #0055D4; font-size: 1.1rem; margin-bottom: 0.4rem; }
+    .card .categoria {
+      display: inline-block; font-size: 0.75rem; font-weight: 600;
+      background: rgba(0,85,212,0.1); color: #0055D4;
+      padding: 0.2rem 0.6rem; border-radius: 999px; margin-bottom: 0.6rem;
+      align-self: flex-start;
+    }
+    .card .descricao { color: #4a5878; font-size: 0.9rem; flex: 1; }
+    .card a.ver {
+      margin-top: 0.9rem; color: #0055D4; text-decoration: none;
+      font-weight: 600; font-size: 0.9rem;
+    }
+    .card a.ver:hover { text-decoration: underline; }
+    .detalhe { background: #fff; border-radius: 12px; padding: 2rem; box-shadow: 0 1px 3px rgba(11,30,64,0.08); }
+    .detalhe h2 { color: #0055D4; margin-bottom: 0.5rem; }
+    .detalhe .categoria {
+      display: inline-block; font-size: 0.8rem; font-weight: 600;
+      background: rgba(0,85,212,0.1); color: #0055D4;
+      padding: 0.25rem 0.7rem; border-radius: 999px; margin-bottom: 1rem;
+    }
+    .detalhe .descricao { margin-bottom: 1.5rem; color: #33415c; }
+    .detalhe .info { display: grid; grid-template-columns: 1fr; gap: 0.8rem; }
+    .detalhe .info-item { border-top: 1px solid #eef2f7; padding-top: 0.6rem; }
+    .detalhe .info-item .rotulo { font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.04em; color: #8a98b3; }
+    .detalhe .info-item .valor { color: #0B1E40; }
+    .detalhe .info-item a { color: #0055D4; text-decoration: none; }
+    .detalhe .info-item a:hover { text-decoration: underline; }
+    .voltar { display: inline-block; margin-bottom: 1rem; color: #0055D4; text-decoration: none; font-weight: 600; }
+    .voltar:hover { text-decoration: underline; }
+    .vazio { text-align: center; color: #8a98b3; padding: 2rem; }
+    footer { text-align: center; padding: 2rem 1rem; color: #8a98b3; font-size: 0.85rem; }
+    .btn {
+      display: inline-block; background: #0055D4; color: #fff;
+      padding: 0.6rem 1.2rem; border-radius: 8px; text-decoration: none;
+      font-weight: 600; margin-top: 1rem;
+    }
+    .btn:hover { background: #0B1E40; }
+    </style>
+</head>
+<body>
+<header>
+  <h1><a href="../../index.html">Catálogo UP</a></h1>
+  <p>Saúde</p>
+</header>
+<main>
+
+<a class="voltar" href="../../index.html">&larr; Voltar ao início</a>
+<a class="voltar" href="../../services/index.html" style="margin-left:1rem;">&larr; Todos os serviços</a>
+<div class="detalhe">
+  <span class="categoria">Saúde</span>
+  <h2>Academia Força Total</h2>
+  <p class="descricao">Academia de musculação e personal trainer</p>
+  <div class="info">
+    <div class="info-item"><div class="rotulo">Telefone</div><div class="valor"><a href="tel:1136789012">(11) 3678-9012</a></div></div><div class="info-item"><div class="rotulo">E-mail</div><div class="valor"><a href="mailto:thiago@forcatotal.com">thiago@forcatotal.com</a></div></div><div class="info-item"><div class="rotulo">Endereço</div><div class="valor">Rua do Esporte, 852 - Centro</div></div><div class="info-item"><div class="rotulo">Horário</div><div class="valor">06:00-22:00</div></div>
+  </div>
+  
+</div>
+
+</main>
+<footer>
+  Catálogo UP &middot; Gerado automaticamente a partir do Google Sheets
+</footer>
+</body>
+</html>
