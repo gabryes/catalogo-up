@@ -1,7 +1,7 @@
-[build]
+ [build]
   command = "pip install -r requirements.txt"
   functions = "netlify/functions"
-  publish = "dist"
+  publish = "public"
 
 [build.environment]
   PYTHON_VERSION = "3.8"
