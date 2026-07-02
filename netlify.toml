@@ -1,26 +1,54 @@
-[build]
-  command = "pip install -r requirements.txt"
-  functions = "netlify/functions"
-  publish = "public"
+Deploy failed for catalogo-up
+A failure prevented us from deploying your project.
+Why did it fail?
+Add Google Sheets key to netlify.toml
+Today at 12:36 PM, by gabryesgabryes on GitHub
 
-[functions]
-  directory = "netlify/functions"
+Production: main@49a84ff
+
+Retry
+Deploy settings
+Delete deploy
+Deploy log
+Why did it fail?
+
+
+
+
+Maximize log
+Initializing
+Failed
+12:37:00 PM: build-image version: cbbb2660d860fe70694043ec05851a3910a2bf39 (noble-new-builds)
+12:37:00 PM: buildbot version: eeb33d556424340cf286e2cbf718636fb66a2bbc
+12:37:00 PM: Building with cache
+12:37:00 PM: Starting to prepare the repo for build
+12:37:00 PM: Preparing Git Reference refs/heads/main
+12:37:02 PM: Failed during stage 'Reading and parsing configuration files': 
+When resolving config file /opt/build/repo/netlify.toml:
+Configuration property functions.python_version must be an object.
+
+Invalid syntax
+
+  [functions]
   python_version = "3.8"
 
-[env.production]
-  environment = { GOOGLE_SHEETS_KEY = "1HP8Td06AIEkLcZVlB11767muts_nlZU9_-sWYS_GMNg", GOOGLE_CREDENTIALS_PATH = "credentials.json", MERCADO_LIVRE_CLIENT_ID = "", MERCADO_LIVRE_CLIENT_SECRET = "", MERCADO_LIVRE_REDIRECT_URI = "", MERCADO_LIVRE_REFRESH_TOKEN = "", MERCADO_LIVRE_ACCESS_TOKEN = "" }
+Valid syntax
 
-[context.production]
-  command = "pip install -r requirements.txt"
-  functions = "netlify/functions"
-  publish = "public"
+  [functions]
 
-[context.deploy-preview]
-  command = "pip install -r requirements.txt"
-  functions = "netlify/functions"
-  publish = "public"
+    [functions.python_version]
+    external_node_modules = [
+      "module-one",
+      "module-two"
+    ]
 
-[context.branch-deploy]
-  command = "pip install -r requirements.txt"
-  functions = "netlify/functions"
-  publish = "public"
+: exit status 1
+12:37:02 PM: Failing build: Failed to parse configuration
+Building
+Complete
+Deploying
+Skipped
+Cleanup
+Skipped
+Post-processing
+Skipped
