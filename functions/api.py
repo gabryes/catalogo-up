@@ -1,437 +1,252 @@
-import json
 import os
-import logging
-from flask import Flask, jsonify, request
+import json
+import urllib.parse
+import urllib.request
+
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 
-# Fallback data extracted from the static site constants
-FALLBACK_SERVICES = [
-    {
-        "id": 1,
-        "title": "Criação de Sites Profissionais",
-        "category": "tecnologia",
-        "subcategory": "Desenvolvimento Web",
-        "premium": True,
-        "price": "A partir de R$ 1.200",
-        "rating": 4.9,
-        "description": "Sites modernos, responsivos e otimizados para SEO. Do landing page ao e-commerce.",
-        "phone": "11999990001",
-        "whatsapp": "11999990001",
-        "email": "dev1@exemplo.com",
-        "instagram": "web_exemplo"
-    },
-    {
-        "id": 2,
-        "title": "Suporte Técnico Remoto",
-        "category": "tecnologia",
-        "subcategory": "Suporte Técnico",
-        "premium": False,
-        "price": "R$ 80/hora",
-        "rating": 4.7,
-        "description": "Resolução de problemas de software, instalação de programas e remoção de vírus.",
-        "phone": "11999990002",
-        "whatsapp": "11999990002",
-        "email": "suporte@exemplo.com",
-        "instagram": "tech_suporte"
-    },
-    {
-        "id": 3,
-        "title": "Consultoria em Segurança da Informação",
-        "category": "tecnologia",
-        "subcategory": "Consultoria em TI",
-        "premium": True,
-        "price": "Sob consulta",
-        "rating": 4.8,
-        "description": "Análise de vulnerabilidades, políticas de segurança e treinamento para equipes.",
-        "phone": "11999990003",
-        "whatsapp": "11999990003",
-        "email": "seguranca@exemplo.com",
-        "instagram": "cyber_exemplo"
-    },
-    {
-        "id": 4,
-        "title": "Instalação de Redes Wi-Fi Mesh",
-        "category": "tecnologia",
-        "subcategory": "Redes e Wi-Fi",
-        "premium": False,
-        "price": "R$ 350",
-        "rating": 4.6,
-        "description": "Configuração de roteadores e extensores para cobertura total em casa ou empresa.",
-        "phone": "11999990004",
-        "whatsapp": "11999990004",
-        "email": "redes@exemplo.com",
-        "instagram": "wifi_pro"
-    },
-    {
-        "id": 5,
-        "title": "Identidade Visual Completa",
-        "category": "design",
-        "subcategory": "Identidade Visual",
-        "premium": True,
-        "price": "A partir de R$ 900",
-        "rating": 4.9,
-        "description": "Logo, paleta de cores, tipografia e manual de marca para o seu negócio.",
-        "phone": "11999990005",
-        "whatsapp": "11999990005",
-        "email": "marca@exemplo.com",
-        "instagram": "design_marca"
-    },
-    {
-        "id": 6,
-        "title": "Prototipagem de Interfaces",
-        "category": "design",
-        "subcategory": "UI/UX Design",
-        "premium": False,
-        "price": "R$ 150/tela",
-        "rating": 4.7,
-        "description": "Wireframes e protótipos navegáveis para validar ideias antes do desenvolvimento.",
-        "phone": "11999990006",
-        "whatsapp": "11999990006",
-        "email": "ux@exemplo.com",
-        "instagram": "ux_exemplo"
-    },
-    {
-        "id": 7,
-        "title": "Animação de Vídeos Promocionais",
-        "category": "design",
-        "subcategory": "Motion Graphics",
-        "premium": True,
-        "price": "A partir de R$ 1.500",
-        "rating": 4.8,
-        "description": "Vídeos animados para redes sociais, apresentações e campanhas publicitárias.",
-        "phone": "11999990007",
-        "whatsapp": "11999990007",
-        "email": "motion@exemplo.com",
-        "instagram": "motion_studio"
-    },
-    {
-        "id": 8,
-        "title": "Ilustrações Personalizadas",
-        "category": "design",
-        "subcategory": "Ilustração",
-        "premium": False,
-        "price": "R$ 200/ilustração",
-        "rating": 4.8,
-        "description": "Ilustrações digitais exclusivas para presentes, livros e conteúdo de marca.",
-        "phone": "11999990008",
-        "whatsapp": "11999990008",
-        "email": "arte@exemplo.com",
-        "instagram": "ilustra_art"
-    },
-    {
-        "id": 9,
-        "title": "Fisioterapia Domiciliar",
-        "category": "saude",
-        "subcategory": "Fisioterapia",
-        "premium": False,
-        "price": "R$ 180/hora",
-        "rating": 4.9,
-        "description": "Atendimento de fisioterapia no conforto da sua casa, com plano personalizado.",
-        "phone": "11999990009",
-        "whatsapp": "11999990009",
-        "email": "fisio@exemplo.com",
-        "instagram": "fisio_casa"
-    },
-    {
-        "id": 10,
-        "title": "Consultoria Nutricional Online",
-        "category": "saude",
-        "subcategory": "Nutrição",
-        "premium": True,
-        "price": "R$ 250/mês",
-        "rating": 4.8,
-        "description": "Planos alimentares individualizados e acompanhamento semanal por vídeo.",
-        "phone": "11999990010",
-        "whatsapp": "11999990010",
-        "email": "nutri@exemplo.com",
-        "instagram": "nutri_vida"
-    },
-    {
-        "id": 11,
-        "title": "Personal Trainer ao Ar Livre",
-        "category": "saude",
-        "subcategory": "Personal Trainer",
-        "premium": False,
-        "price": "R$ 120/aula",
-        "rating": 4.7,
-        "description": "Treinos funcionais em parques e praças, adaptados ao seu nível físico.",
-        "phone": "11999990011",
-        "whatsapp": "11999990011",
-        "email": "treino@exemplo.com",
-        "instagram": "personal_fit"
-    },
-    {
-        "id": 12,
-        "title": "Psicoterapia Online",
-        "category": "saude",
-        "subcategory": "Psicologia",
-        "premium": True,
-        "price": "R$ 200/hora",
-        "rating": 4.9,
-        "description": "Sessões de psicoterapia por vídeo com agendamento flexível e sigilo profissional.",
-        "phone": "11999990012",
-        "whatsapp": "11999990012",
-        "email": "psi@exemplo.com",
-        "instagram": "psi_online"
-    },
-    {
-        "id": 13,
-        "title": "Reforma de Apartamentos",
-        "category": "casa",
-        "subcategory": "Reformas",
-        "premium": True,
-        "price": "Sob orçamento",
-        "rating": 4.6,
-        "description": "Reformas integrais, pintura, revestimentos e acabamentos de qualidade.",
-        "phone": "11999990013",
-        "whatsapp": "11999990013",
-        "email": "reforma@exemplo.com",
-        "instagram": "reforma_total"
-    },
-    {
-        "id": 14,
-        "title": "Instalação Elétrica Residencial",
-        "category": "casa",
-        "subcategory": "Elétrica",
-        "premium": False,
-        "price": "R$ 280",
-        "rating": 4.7,
-        "description": "Instalação de tomadas, lustres, quadros de distribuição e revisões elétricas.",
-        "phone": "11999990014",
-        "whatsapp": "11999990014",
-        "email": "eletrica@exemplo.com",
-        "instagram": "eletrica_pro"
-    },
-    {
-        "id": 15,
-        "title": "Encanador 24 Horas",
-        "category": "casa",
-        "subcategory": "Hidráulica",
-        "premium": False,
-        "price": "R$ 180",
-        "rating": 4.5,
-        "description": "Desentupimento, reparos em torneiras, instalação de louças e caixa d’água.",
-        "phone": "11999990015",
-        "whatsapp": "11999990015",
-        "email": "encanador@exemplo.com",
-        "instagram": "hidro_rapido"
-    },
-    {
-        "id": 16,
-        "title": "Jardinagem e Paisagismo",
-        "category": "casa",
-        "subcategory": "Jardinagem",
-        "premium": True,
-        "price": "A partir de R$ 300",
-        "rating": 4.8,
-        "description": "Projeto e manutenção de jardins, podas, plantio e irrigação.",
-        "phone": "11999990016",
-        "whatsapp": "11999990016",
-        "email": "jardim@exemplo.com",
-        "instagram": "jardim_lindo"
-    },
-    {
-        "id": 17,
-        "title": "Fotografia de Eventos",
-        "category": "eventos",
-        "subcategory": "Fotografia",
-        "premium": True,
-        "price": "A partir de R$ 1.800",
-        "rating": 4.9,
-        "description": "Cobertura fotográfica de festas, casamentos e eventos corporativos.",
-        "phone": "11999990017",
-        "whatsapp": "11999990017",
-        "email": "foto@exemplo.com",
-        "instagram": "foto_eventos"
-    },
-    {
-        "id": 18,
-        "title": "Filmagem e Edição de Vídeo",
-        "category": "eventos",
-        "subcategory": "Filmagem",
-        "premium": False,
-        "price": "R$ 900/evento",
-        "rating": 4.7,
-        "description": "Captura e edição profissional de vídeos para eventos e produtos.",
-        "phone": "11999990018",
-        "whatsapp": "11999990018",
-        "email": "video@exemplo.com",
-        "instagram": "video_prod"
-    },
-    {
-        "id": 19,
-        "title": "DJ para Festas e Eventos",
-        "category": "eventos",
-        "subcategory": "DJ e Som",
-        "premium": True,
-        "price": "R$ 1.200/noite",
-        "rating": 4.8,
-        "description": "Som, iluminação e playlist personalizada para festas de todos os tamanhos.",
-        "phone": "11999990019",
-        "whatsapp": "11999990019",
-        "email": "dj@exemplo.com",
-        "instagram": "dj_festa"
-    },
-    {
-        "id": 20,
-        "title": "Buffet para Festas",
-        "category": "eventos",
-        "subcategory": "Buffet",
-        "premium": False,
-        "price": "R$ 60/pessoa",
-        "rating": 4.6,
-        "description": "Cardápios variados com entrada, pratos principais e sobremesas para eventos.",
-        "phone": "11999990020",
-        "whatsapp": "11999990020",
-        "email": "buffet@exemplo.com",
-        "instagram": "buffet_festas"
+
+# ---------------------------------------------------------------------------
+# Configuração de ambiente
+# ---------------------------------------------------------------------------
+GOOGLE_SHEETS_KEY = os.environ.get("GOOGLE_SHEETS_KEY", "")
+GOOGLE_CREDENTIALS_PATH = os.environ.get("GOOGLE_CREDENTIALS_PATH", "")
+ML_CLIENT_ID = os.environ.get("ML_CLIENT_ID", "")
+ML_CLIENT_SECRET = os.environ.get("ML_CLIENT_SECRET", "")
+ML_REDIRECT_URI = os.environ.get("ML_REDIRECT_URI", "")
+
+ML_AUTH_URL = "https://auth.mercadolivre.com.br/authorization"
+ML_TOKEN_URL = "https://api.mercadolibre.com/oauth/token"
+
+
+# ---------------------------------------------------------------------------
+# Utilidades de resposta
+# ---------------------------------------------------------------------------
+def _json_response(status_code, body, extra_headers=None):
+    headers = {
+        "Content-Type": "application/json",
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Headers": "Content-Type, Authorization",
+        "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
     }
-]
-
-FALLBACK_CATEGORIES = [
-    {
-        "id": "tecnologia",
-        "name": "Tecnologia",
-        "icon": "💻",
-        "subcategories": ["Desenvolvimento Web", "Suporte Técnico", "Redes e Wi-Fi", "Consultoria em TI"]
-    },
-    {
-        "id": "design",
-        "name": "Design & Criativo",
-        "icon": "🎨",
-        "subcategories": ["Identidade Visual", "UI/UX Design", "Motion Graphics", "Ilustração"]
-    },
-    {
-        "id": "saude",
-        "name": "Saúde & Bem-estar",
-        "icon": "🩺",
-        "subcategories": ["Fisioterapia", "Nutrição", "Personal Trainer", "Psicologia"]
-    },
-    {
-        "id": "casa",
-        "name": "Casa & Construção",
-        "icon": "🏠",
-        "subcategories": ["Reformas", "Elétrica", "Hidráulica", "Jardinagem"]
-    },
-    {
-        "id": "eventos",
-        "name": "Eventos & Entretenimento",
-        "icon": "🎉",
-        "subcategories": ["Fotografia", "Filmagem", "DJ e Som", "Buffet"]
-    },
-    {
-        "id": "automotivo",
-        "name": "Automotivo",
-        "icon": "🚗",
-        "subcategories": ["Mecânica", "Funilaria", "Estética Automotiva", "Vistoria"]
+    if extra_headers:
+        headers.update(extra_headers)
+    return {
+        "statusCode": status_code,
+        "headers": headers,
+        "body": json.dumps(body, ensure_ascii=False, default=str),
     }
-]
-
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
-
-app = Flask(__name__)
-
-# Google Sheets configuration
-SCOPE = ['https://spreadsheets.google.com/feeds', 'https://www.googleapis.com/auth/drive']
-CREDENTIALS_FILE = os.environ.get('GOOGLE_CREDENTIALS_PATH', 'credentials.json')
-SHEETS_KEY = os.environ.get('GOOGLE_SHEETS_KEY')
 
 
-def get_gsheet_client():
-    """Connect to Google Sheets using service account credentials."""
+def _error_response(status_code, message):
+    return _json_response(status_code, {"error": message})
+
+
+def _get_query_params(event):
+    params = event.get("queryStringParameters") or {}
+    return params
+
+
+def _get_body(event):
+    body = event.get("body") or ""
+    if isinstance(body, bytes):
+        body = body.decode("utf-8")
     try:
-        creds = ServiceAccountCredentials.from_json_keyfile_name(CREDENTIALS_FILE, SCOPE)
-        client = gspread.authorize(creds)
-        return client
-    except Exception as e:
-        logger.error("Google Sheets auth failed: %s", e)
-        return None
+        return json.loads(body) if body else {}
+    except (ValueError, TypeError):
+        return {}
 
 
-def get_sheet_data(sheet_name):
-    """Fetch all records from a specific sheet. Returns list of dicts or None on failure."""
-    client = get_gsheet_client()
-    if not client:
-        return None
+# ---------------------------------------------------------------------------
+# Conexão com Google Sheets
+# ---------------------------------------------------------------------------
+def _get_google_client():
+    if not GOOGLE_SHEETS_KEY:
+        raise ValueError("GOOGLE_SHEETS_KEY não definido")
+    if not GOOGLE_CREDENTIALS_PATH:
+        raise ValueError("GOOGLE_CREDENTIALS_PATH não definido")
+    if not os.path.exists(GOOGLE_CREDENTIALS_PATH):
+        raise FileNotFoundError(f"Credenciais não encontradas: {GOOGLE_CREDENTIALS_PATH}")
+
+    scope = [
+        "https://spreadsheets.google.com/feeds",
+        "https://www.googleapis.com/auth/drive",
+    ]
+    credentials = ServiceAccountCredentials.from_json_keyfile_name(
+        GOOGLE_CREDENTIALS_PATH, scope
+    )
+    client = gspread.authorize(credentials)
+    return client
+
+
+def _get_sheet(sheet_name):
+    client = _get_google_client()
+    spreadsheet = client.open_by_key(GOOGLE_SHEETS_KEY)
+    return spreadsheet.worksheet(sheet_name)
+
+
+def _rows_to_dicts(rows):
+    if not rows or len(rows) < 2:
+        return []
+    headers = [str(h).strip() for h in rows[0]]
+    result = []
+    for row in rows[1:]:
+        item = {}
+        for index, header in enumerate(headers):
+            value = row[index] if index < len(row) else ""
+            item[header] = value
+        result.append(item)
+    return result
+
+
+# ---------------------------------------------------------------------------
+# Rotas de dados
+# ---------------------------------------------------------------------------
+def get_services():
     try:
-        sheet = client.open_by_key(SHEETS_KEY).worksheet(sheet_name)
-        records = sheet.get_all_records()
-        return records
-    except Exception as e:
-        logger.error("Failed to get sheet '%s': %s", sheet_name, e)
-        return None
+        sheet = _get_sheet("Servicos")
+        rows = sheet.get_all_values()
+        services = _rows_to_dicts(rows)
+        return _json_response(200, {"services": services})
+    except ValueError as exc:
+        return _error_response(500, str(exc))
+    except FileNotFoundError as exc:
+        return _error_response(500, str(exc))
+    except gspread.exceptions.SpreadsheetNotFound:
+        return _error_response(404, "Planilha não encontrada")
+    except gspread.exceptions.WorksheetNotFound:
+        return _error_response(404, "Aba 'Servicos' não encontrada")
+    except Exception as exc:
+        return _error_response(500, f"Erro ao buscar serviços: {exc}")
 
 
-def fetch_services():
-    """Get services from Google Sheets or fallback to local data."""
-    data = get_sheet_data('services')
-    if data is None or len(data) == 0:
-        logger.info("Using fallback services data")
-        return FALLBACK_SERVICES
-    return data
+def get_categories():
+    try:
+        sheet = _get_sheet("Categorias")
+        rows = sheet.get_all_values()
+        categories = _rows_to_dicts(rows)
+        return _json_response(200, {"categories": categories})
+    except ValueError as exc:
+        return _error_response(500, str(exc))
+    except FileNotFoundError as exc:
+        return _error_response(500, str(exc))
+    except gspread.exceptions.SpreadsheetNotFound:
+        return _error_response(404, "Planilha não encontrada")
+    except gspread.exceptions.WorksheetNotFound:
+        return _error_response(404, "Aba 'Categorias' não encontrada")
+    except Exception as exc:
+        return _error_response(500, f"Erro ao buscar categorias: {exc}")
 
 
-def fetch_categories():
-    """Get categories from Google Sheets or fallback to local data."""
-    data = get_sheet_data('categories')
-    if data is None or len(data) == 0:
-        logger.info("Using fallback categories data")
-        return FALLBACK_CATEGORIES
-    return data
+# ---------------------------------------------------------------------------
+# Rotas de autenticação do Mercado Livre
+# ---------------------------------------------------------------------------
+def ml_callback(event):
+    try:
+        params = _get_query_params(event)
+        code = params.get("code")
+        state = params.get("state")
+
+        if not code:
+            error = params.get("error", "unknown_error")
+            return _error_response(400, f"Mercado Livre retornou erro: {error}")
+
+        if not ML_CLIENT_ID or not ML_CLIENT_SECRET or not ML_REDIRECT_URI:
+            return _error_response(
+                500,
+                "Variáveis ML_CLIENT_ID, ML_CLIENT_SECRET ou ML_REDIRECT_URI não definidas",
+            )
+
+        data = urllib.parse.urlencode(
+            {
+                "grant_type": "authorization_code",
+                "client_id": ML_CLIENT_ID,
+                "client_secret": ML_CLIENT_SECRET,
+                "code": code,
+                "redirect_uri": ML_REDIRECT_URI,
+            }
+        ).encode("utf-8")
+
+        request = urllib.request.Request(
+            ML_TOKEN_URL,
+            data=data,
+            method="POST",
+            headers={"Accept": "application/json"},
+        )
+
+        with urllib.request.urlopen(request, timeout=15) as response:
+            token_data = json.loads(response.read().decode("utf-8"))
+
+        return _json_response(
+            200,
+            {
+                "message": "Autenticação realizada com sucesso",
+                "state": state,
+                "tokens": token_data,
+            },
+        )
+    except urllib.error.HTTPError as exc:
+        error_body = exc.read().decode("utf-8", errors="ignore")
+        return _json_response(
+            exc.code,
+            {"error": "Erro ao trocar código por token", "details": error_body},
+        )
+    except Exception as exc:
+        return _error_response(500, f"Erro no callback do Mercado Livre: {exc}")
 
 
-@app.after_request
-def add_cors_headers(response):
-    response.headers['Access-Control-Allow-Origin'] = '*'
-    response.headers['Access-Control-Allow-Headers'] = 'Content-Type'
-    response.headers['Access-Control-Allow-Methods'] = 'GET, OPTIONS'
-    return response
+def ml_success(event):
+    return _json_response(
+        200,
+        {"message": "Autenticação concluída com sucesso", "status": "success"},
+    )
 
 
-@app.route('/api/hello')
-def hello():
-    return jsonify({"message": "Hello from Guia de Serviços API!"})
+def ml_error(event):
+    params = _get_query_params(event)
+    error = params.get("error", "unknown_error")
+    error_description = params.get("error_description", "")
+    return _json_response(
+        400,
+        {
+            "message": "Falha na autenticação com o Mercado Livre",
+            "error": error,
+            "error_description": error_description,
+        },
+    )
 
 
-@app.route('/api/health')
-def health():
-    return jsonify({"status": "ok"})
+# ---------------------------------------------------------------------------
+# Roteamento principal
+# ---------------------------------------------------------------------------
+def _route(path, method, event):
+    if method == "OPTIONS":
+        return _json_response(204, {})
 
+    if path == "/api/services" and method == "GET":
+        return get_services()
 
-@app.route('/api/env')
-def env():
-    # Show environment variables, excluding sensitive ones
-    safe_env = {}
-    for key, value in os.environ.items():
-        lower = key.lower()
-        if any(secret in lower for secret in ['key', 'secret', 'token', 'password', 'auth']):
-            safe_env[key] = '***REDACTED***'
-        else:
-            safe_env[key] = value
-    return jsonify(safe_env)
+    if path == "/api/categories" and method == "GET":
+        return get_categories()
 
+    if path == "/callback" and method == "GET":
+        return ml_callback(event)
 
-@app.route('/api/services')
-def services():
-    category = request.args.get('category')
-    all_services = fetch_services()
-    if category:
-        all_services = [s for s in all_services if s.get('category') == category]
-    return jsonify(all_services)
+    if path == "/success" and method == "GET":
+        return ml_success(event)
 
+    if path == "/error" and method == "GET":
+        return ml_error(event)
 
-@app.route('/api/categories')
-def categories():
-    return jsonify(fetch_categories())
+    return _error_response(404, f"Rota não encontrada: {method} {path}")
 
 
 def handler(event, context):
-    """Netlify Function entry point for serverless-wsgi."""
-    from serverless_wsgi import handle_request
-    return handle_request(app, event, context)
+    try:
+        path = event.get("path", "") or ""
+        method = (event.get("httpMethod") or "GET").upper()
 
-
-if __name__ == '__main__':
-    app.run(debug=True)
+        return _route(path, method, event)
+    except Exception as exc:
+        return _error_response(500, f"Erro interno do servidor: {exc}")
