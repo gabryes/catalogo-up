@@ -6,3 +6,6 @@ credentials.json
 *.key
 *.pem
 !services.json
+backup/
+.backup-old/
+*.backup
