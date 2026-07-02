@@ -1,7 +1,82 @@
-[build]
-  command = "pip install -r requirements.txt"
-  functions = "functions"
-  publish = "public"
+# netlify.toml - Configuração do Catálogo UP
 
-[env.production]
-  environment = { GOOGLE_SHEETS_KEY = "1HP8Td06AIEkLcZVlB11767muts_nlZU9_-sWYS_GMNg", GOOGLE_CREDENTIALS_PATH = "credentials.json" }
+[build]
+  command = "pip install -r requirements.txt && python build.py"
+  publish = "public"
+  functions = "functions"
+
+[build.environment]
+  PYTHON_VERSION = "3.14"
+  GOOGLE_SHEETS_KEY = ""
+  GOOGLE_CREDENTIALS_PATH = "credentials.json"
+
+# Variáveis de ambiente para Google Sheets (contexto de produção)
+[context.production.environment]
+  GOOGLE_SHEETS_KEY = ""
+  GOOGLE_CREDENTIALS_PATH = "credentials.json"
+
+# Variáveis de ambiente para Google Sheets (contexto de deploy preview)
+[context.deploy-preview.environment]
+  GOOGLE_SHEETS_KEY = ""
+  GOOGLE_CREDENTIALS_PATH = "credentials.json"
+
+# Redirects para SPA - redireciona 404s para index.html
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+# Headers de segurança aplicados a todas as rotas
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "SAMEORIGIN"
+    X-Content-Type-Options = "nosniff"
+    X-XSS-Protection = "1; mode=block"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Permissions-Policy = "geolocation=(), microphone=(), camera=()"
+    Strict-Transport-Security = "max-age=31536000; includeSubDomains; preload"
+    Content-Security-Policy = "default-src 'self'; img-src 'self' data: https:; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; font-src 'self' data:; connect-src 'self' https://*.googleapis.com https://sheets.googleapis.com"
+
+# Cache de longa duração para assets estáticos
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/dist/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+# Cache para imagens
+[[headers]]
+  for = "/*.png"
+  [headers.values]
+    Cache-Control = "public, max-age=604800"
+
+[[headers]]
+  for = "/*.jpg"
+  [headers.values]
+    Cache-Control = "public, max-age=604800"
+
+[[headers]]
+  for = "/*.jpeg"
+  [headers.values]
+    Cache-Control = "public, max-age=604800"
+
+[[headers]]
+  for = "/*.svg"
+  [headers.values]
+    Cache-Control = "public, max-age=604800"
+
+[[headers]]
+  for = "/*.webp"
+  [headers.values]
+    Cache-Control = "public, max-age=604800"
+
+# Sem cache para o index.html (sempre busca a versão mais recente)
+[[headers]]
+  for = "/index.html"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
