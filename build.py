@@ -4,6 +4,7 @@ build.py - Catálogo UP
 Gera um site estático a partir de dados de uma planilha Google Sheets.
 """
 
+import base64
 import json
 import os
 import re
@@ -370,6 +371,15 @@ def gerar_detalhe_servico(servico):
 
 # Leitura de dados
 def obter_caminho_credenciais() -> str:
+    # Tenta usar variável de ambiente com base64
+    creds_base64 = os.environ.get("GOOGLE_CREDENTIALS_BASE64")
+    if creds_base64:
+        creds_json = base64.b64decode(creds_base64).decode('utf-8')
+        creds_path = BASE_DIR / "credentials_temp.json"
+        creds_path.write_text(creds_json, encoding='utf-8')
+        return str(creds_path)
+    
+    # Tenta arquivo local
     env_path = os.environ.get("GOOGLE_CREDENTIALS_PATH")
     if env_path and Path(env_path).exists():
         return env_path
@@ -379,8 +389,8 @@ def obter_caminho_credenciais() -> str:
         return str(local)
 
     raise FileNotFoundError(
-        "Credenciais do Google não encontradas.\n"
-        "Defina a variável de ambiente GOOGLE_CREDENTIALS_PATH (Netlify) "
+        "Credenciais do Google não encontradas.\\n"
+        "Defina a variável de ambiente GOOGLE_CREDENTIALS_BASE64 (Netlify) "
         "ou coloque o arquivo credentials.json no diretório do projeto."
     )
 
