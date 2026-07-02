@@ -7,3 +7,5 @@ Flask==2.3.0
 requests==2.31.0
 python-dotenv==1.0.0
 serverless-wsgi==3.0.2
+gspread==5.10.0
+oauth2client==4.1.3
