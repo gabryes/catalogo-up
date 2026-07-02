@@ -4,4 +4,4 @@
   publish = "public"
 
 [env.production]
-  environment = { GOOGLE_SHEETS_KEY = "", GOOGLE_CREDENTIALS_PATH = "credentials.json" }
+  environment = { GOOGLE_SHEETS_KEY = "1HP8Td06AIEkLcZVlB11767muts_nlZU9_-sWYS_GMNg", GOOGLE_CREDENTIALS_PATH = "credentials.json" }
