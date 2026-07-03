@@ -43,6 +43,63 @@
     }
     .btn-comercial:hover { background: #2968c8; }
 
+    /* Hub de Ofertas - grade responsiva de botões */
+    .grid-ofertas {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1rem;
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 0 1rem;
+    }
+    .grid-ofertas .oferta-card {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      background: #fff159;
+      color: #0B1E40;
+      text-decoration: none;
+      padding: 1.4rem 1rem;
+      border-radius: 14px;
+      border: 2px solid rgba(11,30,64,0.08);
+      box-shadow: 0 2px 6px rgba(11,30,64,0.10);
+      transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+      text-align: center;
+      min-height: 130px;
+    }
+    .grid-ofertas .oferta-card:hover {
+      transform: translateY(-3px) scale(1.02);
+      background: #ffe14d;
+      box-shadow: 0 8px 18px rgba(11,30,64,0.22);
+      border-color: rgba(11,30,64,0.18);
+    }
+    .grid-ofertas .oferta-card .icone-oferta {
+      width: 34px;
+      height: 34px;
+      color: #0B1E40;
+      flex-shrink: 0;
+    }
+    .grid-ofertas .oferta-card .oferta-titulo {
+      font-size: 1.05rem;
+      font-weight: 800;
+      line-height: 1.2;
+    }
+    .grid-ofertas .oferta-card .oferta-desc {
+      font-size: 0.82rem;
+      opacity: 0.8;
+      line-height: 1.25;
+    }
+    .grid-ofertas .oferta-card .oferta-cta {
+      margin-top: 0.25rem;
+      font-size: 0.78rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: #3483fa;
+    }
+
     main { max-width: 960px; margin: 2rem auto; padding: 0 1rem; }
     .barra-busca { display: flex; flex-wrap: wrap; gap: 0.75rem; margin-bottom: 1.5rem; }
     .barra-busca input[type="text"], .barra-busca select {
@@ -91,11 +148,15 @@
   <h1><a href="index.html">Catálogo UP</a></h1>
   <p>Encontre o serviço que você precisa</p>
 </header>
-<section class="comercial-destaque">
-  <h2>Ofertas Especiais</h2>
-  <p>Confira as melhores ofertas selecionadas no Mercado Livre!</p>
-  <a href="https://meli.la/1wZMWVF" target="_blank" class="btn-comercial">Ver Ofertas</a>
+<section>
+  <br>
 </section>
+<div class="grid-ofertas">
+<a class="oferta-card" href="https://meli.la/2W5PdNb" target="_blank" rel="noopener nofollow"><svg class="icone-oferta" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M13 2L3 14h7l-1 8 10-12h-7l1-8z"/></svg><span class="oferta-titulo">Ofertas Relâmpago</span><span class="oferta-desc">Descontos que acabam hoje!</span><span class="oferta-cta">Ver oferta &rarr;</span></a>
+<a class="oferta-card" href="https://meli.la/1wZMWVF" target="_blank" rel="noopener nofollow"><svg class="icone-oferta" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg><span class="oferta-titulo">Mais Vendidos</span><span class="oferta-desc">Os queridinhos da galera</span><span class="oferta-cta">Ver oferta &rarr;</span></a>
+<a class="oferta-card" href="https://meli.la/1BB4pwy" target="_blank" rel="noopener nofollow"><svg class="icone-oferta" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg><span class="oferta-titulo">Promo do Dia</span><span class="oferta-desc">Aproveite antes que esgote</span><span class="oferta-cta">Ver oferta &rarr;</span></a>
+<a class="oferta-card" href="https://meli.la/1a9zSgK" target="_blank" rel="noopener nofollow"><svg class="icone-oferta" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M13 2L3 14h7l-1 8 10-12h-7l1-8z"/></svg><span class="oferta-titulo">Queima de Estoque</span><span class="oferta-desc">Preços imbatíveis por tempo limitado</span><span class="oferta-cta">Ver oferta &rarr;</span></a>
+</div>
 <main>
 <div class="barra-busca">
   <input type="text" id="busca" placeholder="Buscar por nome ou descrição..." autocomplete="off">

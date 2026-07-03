@@ -33,6 +33,35 @@ COLUNAS_ESPERADAS = [
     "whatsapp", "email", "endereco", "horario", "descricao", "instagram", "foto_logo_url", "publicidade",
 ]
 
+# Hub de Ofertas - botões comerciais renderizados lado a lado
+OFERTAS = [
+    {
+        "titulo": "Ofertas Relâmpago",
+        "descricao": "Descontos que acabam hoje!",
+        "link": "https://meli.la/2W5PdNb",
+        "icone": "raio",
+    },
+    {
+        "titulo": "Mais Vendidos",
+        "descricao": "Os queridinhos da galera",
+        "link": "https://meli.la/1wZMWVF",
+        "icone": "etiqueta",
+    },
+    {
+        "titulo": "Promo do Dia",
+        "descricao": "Aproveite antes que esgote",
+        "link": "https://meli.la/1BB4pwy",
+        "icone": "etiqueta",
+    },
+    {
+        "titulo": "Queima de Estoque",
+        "descricao": "Preços imbatíveis por tempo limitado",
+        "link": "https://meli.la/1a9zSgK",
+        "icone": "raio",
+    },
+    
+]
+
 # Funções auxiliares
 def slugify(texto: str) -> str:
     texto = (texto or "").strip().lower()
@@ -72,12 +101,30 @@ def garantir_unicos_slugs(servicos):
         s["id"] = slug
     return servicos
 
+# Ícones SVG inline para os botões de oferta
+SVG_RAI = (
+    '<svg class="icone-oferta" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"'
+    ' fill="currentColor" aria-hidden="true"><path d="M13 2L3 14h7l-1 8 10-12h-7l1-8z"/></svg>'
+)
+
+SVG_ETIQUETA = (
+    '<svg class="icone-oferta" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"'
+    ' fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"'
+    ' stroke-linejoin="round" aria-hidden="true"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/>'
+    '<line x1="7" y1="7" x2="7.01" y2="7"/></svg>'
+)
+
+def icone_oferta(tipo: str) -> str:
+    if tipo == "raio":
+        return SVG_RAI
+    return SVG_ETIQUETA
+
 # CSS e Templates
 def css_base() -> str:
     return f"""
     * {{ box-sizing: border-box; margin: 0; padding: 0; }}
     body {{ 
-      font-family: -apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, Helvetica, Arial, sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
       color: {AZUL_MARINHO};
       background: #f5f7fb;
       line-height: 1.6;
@@ -113,13 +160,70 @@ def css_base() -> str:
     }}
     .btn-comercial:hover {{ background: #2968c8; }}
 
+    /* Hub de Ofertas - grade responsiva de botões */
+    .grid-ofertas {{
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1rem;
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 0 1rem;
+    }}
+    .grid-ofertas .oferta-card {{
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      background: {ML_AMARELO};
+      color: {AZUL_MARINHO};
+      text-decoration: none;
+      padding: 1.4rem 1rem;
+      border-radius: 14px;
+      border: 2px solid rgba(11,30,64,0.08);
+      box-shadow: 0 2px 6px rgba(11,30,64,0.10);
+      transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+      text-align: center;
+      min-height: 130px;
+    }}
+    .grid-ofertas .oferta-card:hover {{
+      transform: translateY(-3px) scale(1.02);
+      background: #ffe14d;
+      box-shadow: 0 8px 18px rgba(11,30,64,0.22);
+      border-color: rgba(11,30,64,0.18);
+    }}
+    .grid-ofertas .oferta-card .icone-oferta {{
+      width: 34px;
+      height: 34px;
+      color: {AZUL_MARINHO};
+      flex-shrink: 0;
+    }}
+    .grid-ofertas .oferta-card .oferta-titulo {{
+      font-size: 1.05rem;
+      font-weight: 800;
+      line-height: 1.2;
+    }}
+    .grid-ofertas .oferta-card .oferta-desc {{
+      font-size: 0.82rem;
+      opacity: 0.8;
+      line-height: 1.25;
+    }}
+    .grid-ofertas .oferta-card .oferta-cta {{
+      margin-top: 0.25rem;
+      font-size: 0.78rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: {ML_AZUL};
+    }}
+
     main {{ max-width: 960px; margin: 2rem auto; padding: 0 1rem; }}
     .barra-busca {{ display: flex; flex-wrap: wrap; gap: 0.75rem; margin-bottom: 1.5rem; }}
-    .barra-busca input[type=\"text\"], .barra-busca select {{
+    .barra-busca input[type="text"], .barra-busca select {{
       padding: 0.7rem 0.9rem; border: 1px solid #d0d7e2; border-radius: 8px;
       font-size: 1rem; background: #fff; color: {AZUL_MARINHO};
     }}
-    .barra-busca input[type=\"text\"] {{ flex: 1 1 260px; }}
+    .barra-busca input[type="text"] {{ flex: 1 1 260px; }}
     .barra-busca select {{ flex: 0 1 220px; }}
     .grid {{ display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 1rem; }}
     .card {{
@@ -190,6 +294,24 @@ def rodape_html() -> str:
 </html>
 """
 
+def renderizar_ofertas() -> str:
+    """Renderiza o hub de ofertas como uma grade de botões atrativos."""
+    cards = []
+    for oferta in OFERTAS:
+        titulo = escapa_html(oferta.get("titulo", "Oferta"))
+        descricao = escapa_html(oferta.get("descricao", ""))
+        link = escapa_html(oferta.get("link", ""))
+        svg = icone_oferta(oferta.get("icone", "etiqueta"))
+        cards.append(
+            f'<a class="oferta-card" href="{link}" target="_blank" rel="noopener nofollow">'
+            f'{svg}'
+            f'<span class="oferta-titulo">{titulo}</span>'
+            f'<span class="oferta-desc">{descricao}</span>'
+            f'<span class="oferta-cta">Ver oferta &rarr;</span>'
+            f'</a>'
+        )
+    return "\n".join(cards)
+
 # Geração de páginas
 def gerar_home(servicos, categorias):
     prefix = ""
@@ -212,13 +334,14 @@ def gerar_home(servicos, categorias):
 
     html = cabecalho_html("Início", prefix, "Encontre o serviço que você precisa")
     
-    # Seção Comercial Obrigatória
+    # Hub de Ofertas - grade de botões comerciais
     html += """
-<section class="comercial-destaque">
-  <h2>Ofertas Especiais</h2>
-  <p>Confira as melhores ofertas selecionadas no Mercado Livre!</p>
-  <a href="https://meli.la/1wZMWVF" target="_blank" class="btn-comercial">Ver Ofertas</a>
+<section>
+  <br>
 </section>
+<div class="grid-ofertas">
+""" + renderizar_ofertas() + """
+</div>
 <main>
 <div class="barra-busca">
   <input type="text" id="busca" placeholder="Buscar por nome ou descrição..." autocomplete="off">
