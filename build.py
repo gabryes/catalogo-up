@@ -187,7 +187,7 @@ def rodape_html() -> str:
     return """
 </main>
 <footer>
-  Catálogo UP &middot; Gerado automaticamente a partir do Google Sheets
+  Catálogo UP &middot; Gabriel Informática - gabryes@gmail.com - (86)9 9532-5524 - 2026
 </footer>
 </body>
 </html>
