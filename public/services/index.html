@@ -90,6 +90,10 @@
       color: white; text-decoration: none;
     }
     .social-whatsapp { background-color: #25D366; }
+    .social-whatsapp svg {
+      width: 24px; height: 24px;
+      display: block; margin: auto;
+    }
     .social-instagram { background-color: #E1306C; }
     .social-telefone { background-color: #6c757d; }
     </style>
@@ -107,6 +111,7 @@
   <select id="filtro-categoria">
     <option value="">Todas as categorias</option>
     <option value="Administrativo">Administrativo</option>
+<option value="Alimentação">Alimentação</option>
 <option value="Serviços Gerais">Serviços Gerais</option>
   </select>
 </div>
@@ -115,7 +120,7 @@
   Nenhum serviço encontrado.
 </div>
 <script>
-const SERVICOS = [{"id": "extingo-pragas", "nome": "Extingo Pragas", "categoria": "Serviços Gerais", "descricao": "Dedetização de insetos rasteiros \r\nBaratas, formigas,\r\naranhas, escorpiões e etc. \r\nDesratização \r\nControle de insetos voadores \r\nMosquitos, moscas , pernilongos e outros \r\nBarreira química pra cupim de solo e madeira \r\nHigienização de caixa d'água"}, {"id": "matheus-antonio", "nome": "Matheus Antonio", "categoria": "Administrativo", "descricao": "Atendimento Juridico. BPO Financeiro. Rotina Adminstrativa e Financeira. Abertura e regularização de MEI. Apoio Fiscal. Consultoria Financeira"}, {"id": "dm-solucoes-eletricas-linhares", "nome": "DM Soluções Elétricas ⚡️ Linhares", "categoria": "Serviços Gerais", "descricao": "DM Soluções Elétricas ⚡️ Linhares \n86 99825-1101 \nResidencial odete Nunes Q H \nAtendimento aos finais de semana. 7:30 as 18:00\ndanielslinhares4@gmail.com"}, {"id": "cozinha-caseira-amanda", "nome": "Cozinha Caseira Amanda", "categoria": "", "descricao": "Comidas caseiras , lanches e sobremesas. 🥘🍰\n86995201406\nQuadra B3 Lote 41 \n19:00 as 23:00"}];
+const SERVICOS = [{"id": "extingo-pragas", "nome": "Extingo Pragas", "categoria": "Serviços Gerais", "descricao": "Dedetização de insetos rasteiros \r\nBaratas, formigas,\r\naranhas, escorpiões e etc. \r\nDesratização \r\nControle de insetos voadores \r\nMosquitos, moscas , pernilongos e outros \r\nBarreira química pra cupim de solo e madeira \r\nHigienização de caixa d'água"}, {"id": "matheus-antonio", "nome": "Matheus Antonio", "categoria": "Administrativo", "descricao": "Atendimento Juridico. BPO Financeiro. Rotina Adminstrativa e Financeira. Abertura e regularização de MEI. Apoio Fiscal. Consultoria Financeira"}, {"id": "dm-solucoes-eletricas-linhares", "nome": "DM Soluções Elétricas ⚡️ Linhares", "categoria": "Serviços Gerais", "descricao": "DM Soluções Elétricas ⚡️ Linhares \n86 99825-1101 \nResidencial odete Nunes Q H \nAtendimento aos finais de semana. 7:30 as 18:00\ndanielslinhares4@gmail.com"}, {"id": "cozinha-caseira-amanda", "nome": "Cozinha Caseira Amanda", "categoria": "Alimentação", "descricao": "Comidas caseiras , lanches e sobremesas. 🥘🍰\n86995201406\nQuadra B3 Lote 41 \n19:00 as 23:00"}];
 const busca = document.getElementById('busca');
 const filtro = document.getElementById('filtro-categoria');
 const lista = document.getElementById('lista-servicos');
