@@ -31,23 +31,6 @@ COLUNAS_ESPERADAS = [
     "whatsapp", "email", "endereco", "horario", "descricao", "instagram", "foto_logo_url", "publicidade",
 ]
 
-# Mapeamento de emojis por categoria (adicione mais conforme necessário)
-CATEGORIA_EMOJI = {
-    "alimentação": "🍔",
-    "saúde": "🏥",
-    "tecnologia": "💻",
-    "educação": "🎓",
-    "transporte": "🚗",
-    "beleza": "💇",
-    "esportes": "⚽",
-    "serviços gerais": "🔧",
-    "cultura": "🎭",
-    "arte": "🎨",
-}
-
-def get_categoria_emoji(categoria: str) -> str:
-    return CATEGORIA_EMOJI.get(categoria.strip().lower(), "📌")
-
 # Funções auxiliares
 def slugify(texto: str) -> str:
     texto = (texto or "").strip().lower()
@@ -127,7 +110,6 @@ def css_base() -> str:
       box-shadow: 0 1px 3px rgba(11,30,64,0.08);
       border: 1px solid #e6ebf2; display: flex; flex-direction: column;
       transition: transform 0.15s ease, box-shadow 0.15s ease;
-      cursor: pointer;
     }}
     .card:hover {{ transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,85,212,0.18); }}
     .card h3 {{ color: {COBERTA_AZUL}; font-size: 1.1rem; margin-bottom: 0.4rem; }}
@@ -144,9 +126,6 @@ def css_base() -> str:
     }}
     .card a.ver:hover {{ text-decoration: underline; }}
     .detalhe {{ background: #fff; border-radius: 12px; padding: 2rem; box-shadow: 0 1px 3px rgba(11,30,64,0.08); }}
-    .detalhe .emoji-grande {{
-      font-size: 4rem; text-align: center; margin-bottom: 1rem;
-    }}
     .detalhe h2 {{ color: {COBERTA_AZUL}; margin-bottom: 0.5rem; }}
     .detalhe .categoria {{
       display: inline-block; font-size: 0.8rem; font-weight: 600;
@@ -160,19 +139,6 @@ def css_base() -> str:
     .detalhe .info-item .valor {{ color: {AZUL_MARINHO}; }}
     .detalhe .info-item a {{ color: {COBERTA_AZUL}; text-decoration: none; }}
     .detalhe .info-item a:hover {{ text-decoration: underline; }}
-    .social-icons {{
-      display: flex; gap: 1rem; margin-top: 1.5rem; justify-content: center;
-    }}
-    .social-icons a {{
-      display: inline-flex; align-items: center; justify-content: center;
-      width: 44px; height: 44px; border-radius: 50%;
-      font-size: 1.4rem; color: #fff; text-decoration: none;
-      transition: transform 0.15s ease, box-shadow 0.15s ease;
-    }}
-    .social-icons a:hover {{ transform: scale(1.1); box-shadow: 0 2px 8px rgba(0,0,0,0.2); }}
-    .social-whatsapp {{ background: #25D366; }}
-    .social-instagram {{ background: #E1306C; }}
-    .social-telefone {{ background: #6c757d; }}
     .voltar {{ display: inline-block; margin-bottom: 1rem; color: {COBERTA_AZUL}; text-decoration: none; font-weight: 600; }}
     .voltar:hover {{ text-decoration: underline; }}
     .vazio {{ text-align: center; color: #8a98b3; padding: 2rem; }}
@@ -183,6 +149,17 @@ def css_base() -> str:
       font-weight: 600; margin-top: 1rem;
     }}
     .btn:hover {{ background: {AZUL_MARINHO}; }}
+    .social-icons {{
+      display: flex; gap: 1rem; margin-top: 1.5rem;
+    }}
+    .social-whatsapp, .social-instagram, .social-telefone {{
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 40px; height: 40px; border-radius: 50%;
+      color: white; text-decoration: none;
+    }}
+    .social-whatsapp {{ background-color: #25D366; }}
+    .social-instagram {{ background-color: #E1306C; }}
+    .social-telefone {{ background-color: #6c757d; }}
     """
 
 def cabecalho_html(titulo: str, prefix: str, subtitulo: str = "") -> str:
@@ -192,7 +169,6 @@ def cabecalho_html(titulo: str, prefix: str, subtitulo: str = "") -> str:
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>{escapa_html(titulo)} | Catálogo UP</title>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 <style>{css_base()}</style>
 </head>
 <body>
@@ -235,15 +211,11 @@ def gerar_home(servicos, categorias):
     )
 
     cards = "\n".join(
-        f'''<article class="card"
-     data-nome="{escapa_html(s.get('nome','').lower())}"
-     data-categoria="{escapa_html(s.get('categoria',''))}"
-     onclick="window.location.href='services/{s['id']}/index.html'"
-     style="cursor:pointer;">
+        f'''<article class="card" data-nome="{escapa_html(s.get('nome','').lower())}" data-categoria="{escapa_html(s.get('categoria',''))}">
   <span class="categoria">{escapa_html(s.get('categoria',''))}</span>
   <h3>{escapa_html(s.get('nome',''))}</h3>
   <p class="descricao">{escapa_html((s.get('descricao','') or '')[:120])}{'...' if len(s.get('descricao','') or '') > 120 else ''}</p>
-  <a class="ver" href="services/{s['id']}/index.html" onclick="event.stopPropagation();">Ver detalhes &rarr;</a>
+  <a class="ver" href="{prefix}services/{s['id']}/index.html">Ver detalhes &rarr;</a>
 </article>'''
         for s in servicos
     )
@@ -282,16 +254,9 @@ function render() {{
       <span class="categoria">${{s.categoria}}</span>
       <h3>${{s.nome}}</h3>
       <p class="descricao">${{(s.descricao||'').slice(0,120)}}${{(s.descricao||'').length>120?'...':''}}</p>
-      <a class="ver" href="services/${{s.id}}/index.html" onclick="event.stopPropagation();">Ver detalhes &rarr;</a>
+      <a class="ver" href="services/${{s.id}}/index.html">Ver detalhes &rarr;</a>
     </article>
   `).join('');
-  // Torna cada card clicável para abrir detalhes
-  document.querySelectorAll('#lista-servicos .card').forEach(card => {{
-    card.onclick = function() {{
-      const link = this.querySelector('.ver').href;
-      link && window.location.assign(link);
-    }};
-  }});
   vazio.style.display = filtrados.length ? 'none' : 'block';
 }}
 busca.addEventListener('input', render);
@@ -349,11 +314,11 @@ function render() {{
     return matchCat && matchQ;
   }});
   lista.innerHTML = filtrados.map(s => `
-    <article class="card" onclick="window.location.href='${{s.id}}/index.html'">
+    <article class="card">
       <span class="categoria">${{s.categoria}}</span>
       <h3>${{s.nome}}</h3>
       <p class="descricao">${{(s.descricao||'').slice(0,120)}}${{(s.descricao||'').length>120?'...':''}}</p>
-      <a class="ver" href="${{s.id}}/index.html" onclick="event.stopPropagation();">Ver detalhes &rarr;</a>
+      <a class="ver" href="${{s.id}}/index.html">Ver detalhes &rarr;</a>
     </article>
   `).join('');
   vazio.style.display = filtrados.length ? 'none' : 'block';
@@ -371,78 +336,90 @@ def gerar_detalhe_servico(servico):
     nome = servico.get("nome", "Serviço")
     categoria = servico.get("categoria", "")
     descricao = servico.get("descricao", "")
-    emoji = get_categoria_emoji(categoria)
 
     campos = [
         ("Telefone", servico.get("telefone", "")),
         ("E-mail", servico.get("email", "")),
         ("Endereço", servico.get("endereco", "")),
         ("Horário", servico.get("horario", "")),
+        ("Contato", servico.get("contato", "")),
     ]
 
     linhas = []
     for rotulo, valor in campos:
         if valor and str(valor).strip():
             v = escapa_html(valor)
-            # Formata links
             if rotulo == "E-mail" and "@" in str(valor):
                 v = f'<a href="mailto:{escapa_html(valor)}">{escapa_html(valor)}</a>'
             if rotulo == "Telefone":
-                tel_clean = re.sub(r"[^0-9+]", "", str(valor))
-                v = f'<a href="tel:{tel_clean}">{escapa_html(valor)}</a>'
+                tel = re.sub(r"[^0-9+]", "", str(valor))
+                v = f'<a href="tel:{tel}">{escapa_html(valor)}</a>'
             linhas.append(
                 f'<div class="info-item"><div class="rotulo">{rotulo}</div>'
                 f'<div class="valor">{v}</div></div>'
             )
 
-    # Ícones de contato
-    social_icons = []
+    # Construir ícones de contato inline (SVG) substituindo Font Awesome
+    icones_contato = []
+    
     # WhatsApp
     whatsapp = servico.get("whatsapp", "").strip()
     if whatsapp:
-        # Limpa o número para link do WhatsApp (apenas dígitos, assume DDI 55, remove espaços e +)
-        numero_limpo = re.sub(r"[^0-9]", "", whatsapp)
-        if numero_limpo:
-            # Se já começa com 55, apenas usa; caso contrário, adiciona 55
-            if not numero_limpo.startswith("55"):
-                numero_limpo = "55" + numero_limpo
-            social_icons.append(
-                f'<a href="https://wa.me/{numero_limpo}" target="_blank" rel="noopener" class="social-whatsapp" aria-label="WhatsApp">'
-                f'<i class="fab fa-whatsapp"></i></a>'
-            )
+        numero_limpo = re.sub(r'[^0-9]', '', whatsapp)
+        icones_contato.append(
+            f'''            <a href="https://wa.me/{numero_limpo}" target="_blank" rel="noopener" class="social-whatsapp" aria-label="WhatsApp">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.67-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.076 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421-7.403h-.004a9.87 9.87 0 00-4.781 1.226l-.308.156-3.19-.837.852 3.081-.199.315a9.9 9.9 0 001.516 5.394c.732 1.092 1.771 2.041 2.986 2.766 1.215.725 2.582 1.134 4.001 1.134 2.187 0 4.285-.855 5.868-2.438 1.584-1.584 2.438-3.682 2.438-5.868 0-1.419-.409-2.786-1.134-4.001-.725-1.215-1.674-2.254-2.766-2.986a9.87 9.87 0 00-5.123-1.348zM2.534 1.002C1.135 2.401 0 4.406 0 6.522 0 15.209 7.291 22.5 16.078 22.5c2.116 0 4.121-1.135 5.52-2.534l1.402-1.402-3.19-.837-1.402 1.402c-1.092.732-2.354 1.134-3.67 1.134-6.15 0-11.15-5-11.15-11.15 0-1.316.402-2.578 1.134-3.67l1.402-1.402-3.19-.837-1.402 1.402z"/>
+              </svg>
+            </a>'''
+        )
+
     # Instagram
     instagram = servico.get("instagram", "").strip()
     if instagram:
-        # Remove @ se presente e monta link
-        user = instagram.lstrip("@")
-        social_icons.append(
-            f'<a href="https://instagram.com/{user}" target="_blank" rel="noopener" class="social-instagram" aria-label="Instagram">'
-            f'<i class="fab fa-instagram"></i></a>'
+        # Remove @ se existir e espaços
+        user = instagram.lstrip('@')
+        icones_contato.append(
+            f'''            <a href="https://instagram.com/{escapa_html(user)}" target="_blank" rel="noopener" class="social-instagram" aria-label="Instagram">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+              </svg>
+            </a>'''
         )
+
     # Telefone
     telefone = servico.get("telefone", "").strip()
     if telefone:
-        tel_clean = re.sub(r"[^0-9+]", "", telefone)
-        social_icons.append(
-            f'<a href="tel:{tel_clean}" class="social-telefone" aria-label="Telefone">'
-            f'<i class="fas fa-phone"></i></a>'
+        tel_limpo = re.sub(r'[^0-9+]', '', telefone)
+        icones_contato.append(
+            f'''            <a href="tel:{tel_limpo}" class="social-telefone" aria-label="Telefone">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
+              </svg>
+            </a>'''
         )
 
-    social_icons_html = "\n      ".join(social_icons) if social_icons else ""
+    icones_html = ""
+    if icones_contato:
+        icones_html = '<div class="social-icons">\n' + "\n".join(icones_contato) + "\n        </div>"
+
+    link_html = ""
+    if servico.get("link") and str(servico.get("link")).strip():
+        link_html = f'<a class="btn" href="{escapa_html(servico["link"])}" target="_blank" rel="noopener">Acessar serviço &rarr;</a>'
 
     html = cabecalho_html(nome, prefix, categoria)
     html += f"""
 <a class="voltar" href="{prefix}index.html">&larr; Voltar ao início</a>
 <a class="voltar" href="{prefix}services/index.html" style="margin-left:1rem;">&larr; Todos os serviços</a>
 <div class="detalhe">
-  <div class="emoji-grande">{emoji}</div>
-  <h2>{escapa_html(nome)}</h2>
   <span class="categoria">{escapa_html(categoria)}</span>
+  <h2>{escapa_html(nome)}</h2>
   <p class="descricao">{escapa_html(descricao)}</p>
   <div class="info">
     {''.join(linhas)}
   </div>
-  {social_icons_html and f'<div class="social-icons">{social_icons_html}</div>' or ''}
+  {icones_html}
+  {link_html}
 </div>
 """
     html += rodape_html()

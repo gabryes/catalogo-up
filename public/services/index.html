@@ -4,7 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Serviços | Catálogo UP</title>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
@@ -39,26 +38,39 @@
     }
     .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 1rem; }
     .card {
-      display: flex; align-items: center; gap: 0.75rem;
-      padding: 1rem; text-decoration: none; color: inherit;
-      background: #fff; border-radius: 8px;
+      background: #fff; border-radius: 10px; padding: 1.2rem;
       box-shadow: 0 1px 3px rgba(11,30,64,0.08);
-      border: 1px solid #e6ebf2;
-      transition: background 0.2s ease, box-shadow 0.2s ease;
+      border: 1px solid #e6ebf2; display: flex; flex-direction: column;
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
     }
-    .card:hover {
-      background: #f0f4ff;
-      box-shadow: 0 4px 12px rgba(0,85,212,0.18);
+    .card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,85,212,0.18); }
+    .card h3 { color: #0055D4; font-size: 1.1rem; margin-bottom: 0.4rem; }
+    .card .categoria {
+      display: inline-block; font-size: 0.75rem; font-weight: 600;
+      background: rgba(0,85,212,0.1); color: #0055D4;
+      padding: 0.2rem 0.6rem; border-radius: 999px; margin-bottom: 0.6rem;
+      align-self: flex-start;
     }
-    .card .emoticon {
-      font-size: 2rem; line-height: 1; flex-shrink: 0;
+    .card .descricao { color: #4a5878; font-size: 0.9rem; flex: 1; }
+    .card a.ver {
+      margin-top: 0.9rem; color: #0055D4; text-decoration: none;
+      font-weight: 600; font-size: 0.9rem;
     }
-    .card h3 {
-      margin: 0 0 0.25rem; font-size: 1.1rem; color: #0055D4;
+    .card a.ver:hover { text-decoration: underline; }
+    .detalhe { background: #fff; border-radius: 12px; padding: 2rem; box-shadow: 0 1px 3px rgba(11,30,64,0.08); }
+    .detalhe h2 { color: #0055D4; margin-bottom: 0.5rem; }
+    .detalhe .categoria {
+      display: inline-block; font-size: 0.8rem; font-weight: 600;
+      background: rgba(0,85,212,0.1); color: #0055D4;
+      padding: 0.25rem 0.7rem; border-radius: 999px; margin-bottom: 1rem;
     }
-    .card p {
-      margin: 0; font-size: 0.9rem; color: #4a5878;
-    }
+    .detalhe .descricao { margin-bottom: 1.5rem; color: #33415c; }
+    .detalhe .info { display: grid; grid-template-columns: 1fr; gap: 0.8rem; }
+    .detalhe .info-item { border-top: 1px solid #eef2f7; padding-top: 0.6rem; }
+    .detalhe .info-item .rotulo { font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.04em; color: #8a98b3; }
+    .detalhe .info-item .valor { color: #0B1E40; }
+    .detalhe .info-item a { color: #0055D4; text-decoration: none; }
+    .detalhe .info-item a:hover { text-decoration: underline; }
     .voltar { display: inline-block; margin-bottom: 1rem; color: #0055D4; text-decoration: none; font-weight: 600; }
     .voltar:hover { text-decoration: underline; }
     .vazio { text-align: center; color: #8a98b3; padding: 2rem; }
@@ -69,64 +81,17 @@
       font-weight: 600; margin-top: 1rem;
     }
     .btn:hover { background: #0B1E40; }
-    /* Detail card */
-    .detalhe-card {
-      background: #fff; border-radius: 12px; padding: 2rem; max-width: 600px; margin: 0 auto;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    .social-icons {
+      display: flex; gap: 1rem; margin-top: 1.5rem;
     }
-    .big-emoticon {
-      font-size: 4rem; text-align: center; margin-bottom: 1rem;
+    .social-whatsapp, .social-instagram, .social-telefone {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 40px; height: 40px; border-radius: 50%;
+      color: white; text-decoration: none;
     }
-    .detalhe-card h2 {
-      color: #0055D4; margin-bottom: 0.5rem; font-size: 1.8rem; text-align: center;
-    }
-    .categoria-tag {
-      display: inline-block; font-size: 0.8rem; font-weight: 600;
-      background: rgba(0,85,212,0.1); color: #0055D4;
-      padding: 0.25rem 0.7rem; border-radius: 999px; margin-bottom: 1rem;
-    }
-    .descricao-completa {
-      color: #33415c; line-height: 1.6; margin-bottom: 1.5rem; text-align: center;
-    }
-    .info-grid {
-      display: grid; grid-template-columns: 1fr; gap: 0.5rem; margin-bottom: 1.5rem;
-      border-top: 1px solid #eef2f7; border-bottom: 1px solid #eef2f7;
-      padding: 1rem 0;
-    }
-    .info-grid .info-item {
-      display: flex; gap: 0.5rem;
-    }
-    .info-grid .rotulo {
-      font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.04em;
-      color: #8a98b3; min-width: 100px;
-    }
-    .info-grid .valor {
-      color: #0B1E40;
-    }
-    .info-grid a {
-      color: #0055D4; text-decoration: none;
-    }
-    .info-grid a:hover {
-      text-decoration: underline;
-    }
-    .contact-icons {
-      display: flex; gap: 1.5rem; justify-content: center; margin-top: 1.5rem;
-    }
-    .contact-icons a {
-      font-size: 2rem; text-decoration: none; transition: transform 0.15s ease;
-    }
-    .contact-icons a:hover {
-      transform: scale(1.2);
-    }
-    .contact-icons .whatsapp { color: #25D366; }
-    .contact-icons .instagram { color: #E1306C; }
-    .contact-icons .email { color: #007BFF; }
-    .contact-icons .phone { color: #666; }
-    @media (max-width: 600px) {
-      .detalhe-card { padding: 1.5rem; }
-      .big-emoticon { font-size: 3rem; }
-      .contact-icons a { font-size: 1.8rem; }
-    }
+    .social-whatsapp { background-color: #25D366; }
+    .social-instagram { background-color: #E1306C; }
+    .social-telefone { background-color: #6c757d; }
     </style>
 </head>
 <body>
@@ -150,7 +115,7 @@
   Nenhum serviço encontrado.
 </div>
 <script>
-const SERVICOS = [{"id": "extingo-pragas", "nome": "Extingo Pragas", "categoria": "Serviços Gerais", "descricao": "Dedetização de insetos rasteiros \r\nBaratas, formigas,\r\naranhas, escorpiões e etc. \r\nDesratização \r\nControle de insetos voadores \r\nMosquitos, moscas , pernilongos e outros \r\nBarreira química pra cupim de solo e madeira \r\nHigienização de caixa d'água", "emoticon": "📌"}, {"id": "matheus-antonio", "nome": "Matheus Antonio", "categoria": "Administrativo", "descricao": "Atendimento Juridico. BPO Financeiro. Rotina Adminstrativa e Financeira. Abertura e regularização de MEI. Apoio Fiscal. Consultoria Financeira", "emoticon": "📌"}, {"id": "dm-solucoes-eletricas-linhares", "nome": "DM Soluções Elétricas ⚡️ Linhares", "categoria": "Serviços Gerais", "descricao": "DM Soluções Elétricas ⚡️ Linhares \n86 99825-1101 \nResidencial odete Nunes Q H \nAtendimento aos finais de semana. 7:30 as 18:00\ndanielslinhares4@gmail.com", "emoticon": "📌"}, {"id": "cozinha-caseira-amanda", "nome": "Cozinha Caseira Amanda", "categoria": "", "descricao": "Comidas caseiras , lanches e sobremesas. 🥘🍰\n86995201406\nQuadra B3 Lote 41 \n19:00 as 23:00", "emoticon": "📌"}];
+const SERVICOS = [{"id": "extingo-pragas", "nome": "Extingo Pragas", "categoria": "Serviços Gerais", "descricao": "Dedetização de insetos rasteiros \r\nBaratas, formigas,\r\naranhas, escorpiões e etc. \r\nDesratização \r\nControle de insetos voadores \r\nMosquitos, moscas , pernilongos e outros \r\nBarreira química pra cupim de solo e madeira \r\nHigienização de caixa d'água"}, {"id": "matheus-antonio", "nome": "Matheus Antonio", "categoria": "Administrativo", "descricao": "Atendimento Juridico. BPO Financeiro. Rotina Adminstrativa e Financeira. Abertura e regularização de MEI. Apoio Fiscal. Consultoria Financeira"}, {"id": "dm-solucoes-eletricas-linhares", "nome": "DM Soluções Elétricas ⚡️ Linhares", "categoria": "Serviços Gerais", "descricao": "DM Soluções Elétricas ⚡️ Linhares \n86 99825-1101 \nResidencial odete Nunes Q H \nAtendimento aos finais de semana. 7:30 as 18:00\ndanielslinhares4@gmail.com"}, {"id": "cozinha-caseira-amanda", "nome": "Cozinha Caseira Amanda", "categoria": "", "descricao": "Comidas caseiras , lanches e sobremesas. 🥘🍰\n86995201406\nQuadra B3 Lote 41 \n19:00 as 23:00"}];
 const busca = document.getElementById('busca');
 const filtro = document.getElementById('filtro-categoria');
 const lista = document.getElementById('lista-servicos');
@@ -164,13 +129,12 @@ function render() {
     return matchCat && matchQ;
   });
   lista.innerHTML = filtrados.map(s => `
-    <a class="card" href="${s.id}/index.html">
-      <span class="emoticon">${s.emoticon}</span>
-      <div>
-        <h3>${s.nome}</h3>
-        <p>${(s.descricao||'').slice(0,100)}${(s.descricao||'').length>100?'...':''}</p>
-      </div>
-    </a>
+    <article class="card">
+      <span class="categoria">${s.categoria}</span>
+      <h3>${s.nome}</h3>
+      <p class="descricao">${(s.descricao||'').slice(0,120)}${(s.descricao||'').length>120?'...':''}</p>
+      <a class="ver" href="${s.id}/index.html">Ver detalhes &rarr;</a>
+    </article>
   `).join('');
   vazio.style.display = filtrados.length ? 'none' : 'block';
 }

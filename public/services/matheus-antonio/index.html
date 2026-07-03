@@ -4,7 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Matheus Antonio | Catálogo UP</title>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
@@ -39,26 +38,39 @@
     }
     .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 1rem; }
     .card {
-      display: flex; align-items: center; gap: 0.75rem;
-      padding: 1rem; text-decoration: none; color: inherit;
-      background: #fff; border-radius: 8px;
+      background: #fff; border-radius: 10px; padding: 1.2rem;
       box-shadow: 0 1px 3px rgba(11,30,64,0.08);
-      border: 1px solid #e6ebf2;
-      transition: background 0.2s ease, box-shadow 0.2s ease;
+      border: 1px solid #e6ebf2; display: flex; flex-direction: column;
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
     }
-    .card:hover {
-      background: #f0f4ff;
-      box-shadow: 0 4px 12px rgba(0,85,212,0.18);
+    .card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,85,212,0.18); }
+    .card h3 { color: #0055D4; font-size: 1.1rem; margin-bottom: 0.4rem; }
+    .card .categoria {
+      display: inline-block; font-size: 0.75rem; font-weight: 600;
+      background: rgba(0,85,212,0.1); color: #0055D4;
+      padding: 0.2rem 0.6rem; border-radius: 999px; margin-bottom: 0.6rem;
+      align-self: flex-start;
     }
-    .card .emoticon {
-      font-size: 2rem; line-height: 1; flex-shrink: 0;
+    .card .descricao { color: #4a5878; font-size: 0.9rem; flex: 1; }
+    .card a.ver {
+      margin-top: 0.9rem; color: #0055D4; text-decoration: none;
+      font-weight: 600; font-size: 0.9rem;
     }
-    .card h3 {
-      margin: 0 0 0.25rem; font-size: 1.1rem; color: #0055D4;
+    .card a.ver:hover { text-decoration: underline; }
+    .detalhe { background: #fff; border-radius: 12px; padding: 2rem; box-shadow: 0 1px 3px rgba(11,30,64,0.08); }
+    .detalhe h2 { color: #0055D4; margin-bottom: 0.5rem; }
+    .detalhe .categoria {
+      display: inline-block; font-size: 0.8rem; font-weight: 600;
+      background: rgba(0,85,212,0.1); color: #0055D4;
+      padding: 0.25rem 0.7rem; border-radius: 999px; margin-bottom: 1rem;
     }
-    .card p {
-      margin: 0; font-size: 0.9rem; color: #4a5878;
-    }
+    .detalhe .descricao { margin-bottom: 1.5rem; color: #33415c; }
+    .detalhe .info { display: grid; grid-template-columns: 1fr; gap: 0.8rem; }
+    .detalhe .info-item { border-top: 1px solid #eef2f7; padding-top: 0.6rem; }
+    .detalhe .info-item .rotulo { font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.04em; color: #8a98b3; }
+    .detalhe .info-item .valor { color: #0B1E40; }
+    .detalhe .info-item a { color: #0055D4; text-decoration: none; }
+    .detalhe .info-item a:hover { text-decoration: underline; }
     .voltar { display: inline-block; margin-bottom: 1rem; color: #0055D4; text-decoration: none; font-weight: 600; }
     .voltar:hover { text-decoration: underline; }
     .vazio { text-align: center; color: #8a98b3; padding: 2rem; }
@@ -69,64 +81,17 @@
       font-weight: 600; margin-top: 1rem;
     }
     .btn:hover { background: #0B1E40; }
-    /* Detail card */
-    .detalhe-card {
-      background: #fff; border-radius: 12px; padding: 2rem; max-width: 600px; margin: 0 auto;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    .social-icons {
+      display: flex; gap: 1rem; margin-top: 1.5rem;
     }
-    .big-emoticon {
-      font-size: 4rem; text-align: center; margin-bottom: 1rem;
+    .social-whatsapp, .social-instagram, .social-telefone {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 40px; height: 40px; border-radius: 50%;
+      color: white; text-decoration: none;
     }
-    .detalhe-card h2 {
-      color: #0055D4; margin-bottom: 0.5rem; font-size: 1.8rem; text-align: center;
-    }
-    .categoria-tag {
-      display: inline-block; font-size: 0.8rem; font-weight: 600;
-      background: rgba(0,85,212,0.1); color: #0055D4;
-      padding: 0.25rem 0.7rem; border-radius: 999px; margin-bottom: 1rem;
-    }
-    .descricao-completa {
-      color: #33415c; line-height: 1.6; margin-bottom: 1.5rem; text-align: center;
-    }
-    .info-grid {
-      display: grid; grid-template-columns: 1fr; gap: 0.5rem; margin-bottom: 1.5rem;
-      border-top: 1px solid #eef2f7; border-bottom: 1px solid #eef2f7;
-      padding: 1rem 0;
-    }
-    .info-grid .info-item {
-      display: flex; gap: 0.5rem;
-    }
-    .info-grid .rotulo {
-      font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.04em;
-      color: #8a98b3; min-width: 100px;
-    }
-    .info-grid .valor {
-      color: #0B1E40;
-    }
-    .info-grid a {
-      color: #0055D4; text-decoration: none;
-    }
-    .info-grid a:hover {
-      text-decoration: underline;
-    }
-    .contact-icons {
-      display: flex; gap: 1.5rem; justify-content: center; margin-top: 1.5rem;
-    }
-    .contact-icons a {
-      font-size: 2rem; text-decoration: none; transition: transform 0.15s ease;
-    }
-    .contact-icons a:hover {
-      transform: scale(1.2);
-    }
-    .contact-icons .whatsapp { color: #25D366; }
-    .contact-icons .instagram { color: #E1306C; }
-    .contact-icons .email { color: #007BFF; }
-    .contact-icons .phone { color: #666; }
-    @media (max-width: 600px) {
-      .detalhe-card { padding: 1.5rem; }
-      .big-emoticon { font-size: 3rem; }
-      .contact-icons a { font-size: 1.8rem; }
-    }
+    .social-whatsapp { background-color: #25D366; }
+    .social-instagram { background-color: #E1306C; }
+    .social-telefone { background-color: #6c757d; }
     </style>
 </head>
 <body>
@@ -136,20 +101,33 @@
 </header>
 <main>
 
-<a class="voltar" href="../../index.html">&larr; Voltar à lista</a>
-<div class="detalhe-card">
-  <div class="big-emoticon">📌</div>
+<a class="voltar" href="../../index.html">&larr; Voltar ao início</a>
+<a class="voltar" href="../../services/index.html" style="margin-left:1rem;">&larr; Todos os serviços</a>
+<div class="detalhe">
+  <span class="categoria">Administrativo</span>
   <h2>Matheus Antonio</h2>
-  <div style="text-align:center;"><span class="categoria-tag">Administrativo</span></div>
-  <p class="descricao-completa">Atendimento Juridico. BPO Financeiro. Rotina Adminstrativa e Financeira. Abertura e regularização de MEI. Apoio Fiscal. Consultoria Financeira</p>
-  <div class="info-grid">
-    <div class="info-item"><span class="rotulo">Telefone</span><span class="valor"><a href="tel:86994911441">86994911441</a></span></div><div class="info-item"><span class="rotulo">Endereço</span><span class="valor">Quadra C2 lote 52 Odete Nunes</span></div><div class="info-item"><span class="rotulo">Horário</span><span class="valor">08:00-18:00</span></div>
+  <p class="descricao">Atendimento Juridico. BPO Financeiro. Rotina Adminstrativa e Financeira. Abertura e regularização de MEI. Apoio Fiscal. Consultoria Financeira</p>
+  <div class="info">
+    <div class="info-item"><div class="rotulo">Telefone</div><div class="valor"><a href="tel:86994911441">86994911441</a></div></div><div class="info-item"><div class="rotulo">Endereço</div><div class="valor">Quadra C2 lote 52 Odete Nunes</div></div><div class="info-item"><div class="rotulo">Horário</div><div class="valor">08:00-18:00</div></div>
   </div>
-  <div class="contact-icons">
-    <a class="fab fa-whatsapp whatsapp" href="https://wa.me/86994911441" target="_blank" rel="noopener" aria-label="WhatsApp"></a>
-<a class="fab fa-instagram instagram" href="https://instagram.com/mtassessoria_contabil" target="_blank" rel="noopener" aria-label="Instagram"></a>
-<a class="fas fa-phone phone" href="tel:86994911441" aria-label="Telefone"></a>
-  </div>
+  <div class="social-icons">
+            <a href="https://wa.me/86994911441" target="_blank" rel="noopener" class="social-whatsapp" aria-label="WhatsApp">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.67-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.076 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421-7.403h-.004a9.87 9.87 0 00-4.781 1.226l-.308.156-3.19-.837.852 3.081-.199.315a9.9 9.9 0 001.516 5.394c.732 1.092 1.771 2.041 2.986 2.766 1.215.725 2.582 1.134 4.001 1.134 2.187 0 4.285-.855 5.868-2.438 1.584-1.584 2.438-3.682 2.438-5.868 0-1.419-.409-2.786-1.134-4.001-.725-1.215-1.674-2.254-2.766-2.986a9.87 9.87 0 00-5.123-1.348zM2.534 1.002C1.135 2.401 0 4.406 0 6.522 0 15.209 7.291 22.5 16.078 22.5c2.116 0 4.121-1.135 5.52-2.534l1.402-1.402-3.19-.837-1.402 1.402c-1.092.732-2.354 1.134-3.67 1.134-6.15 0-11.15-5-11.15-11.15 0-1.316.402-2.578 1.134-3.67l1.402-1.402-3.19-.837-1.402 1.402z"/>
+              </svg>
+            </a>
+            <a href="https://instagram.com/mtassessoria_contabil" target="_blank" rel="noopener" class="social-instagram" aria-label="Instagram">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+              </svg>
+            </a>
+            <a href="tel:86994911441" class="social-telefone" aria-label="Telefone">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
+              </svg>
+            </a>
+        </div>
+  
 </div>
 
 </main>
