@@ -6,13 +6,13 @@
 <title>Serviços | Catálogo UP</title>
 <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
+    body { 
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
       color: #0B1E40;
       background: #f5f7fb;
       line-height: 1.6;
     }
-    header {
+    header { 
       background: #0B1E40;
       color: #fff;
       padding: 1.5rem 1rem;
@@ -21,21 +21,36 @@
     header h1 { font-size: 1.6rem; font-weight: 700; }
     header h1 a { color: #fff; text-decoration: none; }
     header p { opacity: 0.8; margin-top: 0.3rem; font-size: 0.95rem; }
-    main { max-width: 960px; margin: 2rem auto; padding: 0 1rem; }
-    .barra-busca {
-      display: flex; flex-wrap: wrap; gap: 0.75rem; margin-bottom: 1.5rem;
+    
+    .comercial-destaque {
+      background: #fff159;
+      padding: 2rem 1rem;
+      text-align: center;
+      border-bottom: 1px solid #ddd;
+      margin-bottom: 2rem;
     }
-    .barra-busca input[type="text"],
-    .barra-busca select {
+    .comercial-destaque h2 { color: #333; margin-bottom: 0.5rem; font-size: 1.4rem; }
+    .comercial-destaque p { color: #666; margin-bottom: 1.2rem; }
+    .btn-comercial {
+      display: inline-block;
+      background: #3483fa;
+      color: #fff;
+      padding: 0.8rem 2rem;
+      border-radius: 6px;
+      text-decoration: none;
+      font-weight: bold;
+      transition: background 0.2s;
+    }
+    .btn-comercial:hover { background: #2968c8; }
+
+    main { max-width: 960px; margin: 2rem auto; padding: 0 1rem; }
+    .barra-busca { display: flex; flex-wrap: wrap; gap: 0.75rem; margin-bottom: 1.5rem; }
+    .barra-busca input[type="text"], .barra-busca select {
       padding: 0.7rem 0.9rem; border: 1px solid #d0d7e2; border-radius: 8px;
       font-size: 1rem; background: #fff; color: #0B1E40;
     }
     .barra-busca input[type="text"] { flex: 1 1 260px; }
     .barra-busca select { flex: 0 1 220px; }
-    .barra-busca input:focus, .barra-busca select:focus {
-      outline: none; border-color: #0055D4;
-      box-shadow: 0 0 0 3px rgba(0,85,212,0.15);
-    }
     .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 1rem; }
     .card {
       background: #fff; border-radius: 10px; padding: 1.2rem;
@@ -52,48 +67,21 @@
       align-self: flex-start;
     }
     .card .descricao { color: #4a5878; font-size: 0.9rem; flex: 1; }
-    .card a.ver {
-      margin-top: 0.9rem; color: #0055D4; text-decoration: none;
-      font-weight: 600; font-size: 0.9rem;
-    }
-    .card a.ver:hover { text-decoration: underline; }
+    .card a.ver { margin-top: 0.9rem; color: #0055D4; text-decoration: none; font-weight: 600; font-size: 0.9rem; }
     .detalhe { background: #fff; border-radius: 12px; padding: 2rem; box-shadow: 0 1px 3px rgba(11,30,64,0.08); }
     .detalhe h2 { color: #0055D4; margin-bottom: 0.5rem; }
-    .detalhe .categoria {
-      display: inline-block; font-size: 0.8rem; font-weight: 600;
-      background: rgba(0,85,212,0.1); color: #0055D4;
-      padding: 0.25rem 0.7rem; border-radius: 999px; margin-bottom: 1rem;
-    }
-    .detalhe .descricao { margin-bottom: 1.5rem; color: #33415c; }
-    .detalhe .info { display: grid; grid-template-columns: 1fr; gap: 0.8rem; }
-    .detalhe .info-item { border-top: 1px solid #eef2f7; padding-top: 0.6rem; }
-    .detalhe .info-item .rotulo { font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.04em; color: #8a98b3; }
-    .detalhe .info-item .valor { color: #0B1E40; }
-    .detalhe .info-item a { color: #0055D4; text-decoration: none; }
-    .detalhe .info-item a:hover { text-decoration: underline; }
+    .detalhe .info-item { border-top: 1px solid #eef2f7; padding-top: 0.6rem; margin-top: 0.6rem; }
+    .detalhe .info-item .rotulo { font-size: 0.78rem; text-transform: uppercase; color: #8a98b3; }
     .voltar { display: inline-block; margin-bottom: 1rem; color: #0055D4; text-decoration: none; font-weight: 600; }
-    .voltar:hover { text-decoration: underline; }
-    .vazio { text-align: center; color: #8a98b3; padding: 2rem; }
     footer { text-align: center; padding: 2rem 1rem; color: #8a98b3; font-size: 0.85rem; }
-    .btn {
-      display: inline-block; background: #0055D4; color: #fff;
-      padding: 0.6rem 1.2rem; border-radius: 8px; text-decoration: none;
-      font-weight: 600; margin-top: 1rem;
-    }
-    .btn:hover { background: #0B1E40; }
-    .social-icons {
-      display: flex; gap: 1rem; margin-top: 1.5rem;
-    }
+    .social-icons { display: flex; gap: 1rem; margin-top: 1.5rem; }
     .social-whatsapp, .social-instagram, .social-telefone {
       display: inline-flex; align-items: center; justify-content: center;
       width: 40px; height: 40px; border-radius: 50%;
       color: white; text-decoration: none;
     }
     .social-whatsapp { background-color: #25D366; }
-    .social-whatsapp svg {
-      width: 24px; height: 24px;
-      display: block; margin: auto;
-    }
+    .social-whatsapp svg { width: 24px; height: 24px; display: block; }
     .social-instagram { background-color: #E1306C; }
     .social-telefone { background-color: #6c757d; }
     </style>
@@ -104,7 +92,6 @@
   <p>Lista completa de serviços</p>
 </header>
 <main>
-
 <a class="voltar" href="../index.html">&larr; Voltar ao início</a>
 <div class="barra-busca">
   <input type="text" id="busca" placeholder="Buscar serviços..." autocomplete="off">
@@ -116,7 +103,7 @@
   </select>
 </div>
 <div class="grid" id="lista-servicos"></div>
-<div class="vazio" id="sem-resultados" style="display:none;">
+<div class="vazio" id="sem-resultados" style="display:none; text-align:center; padding:2rem; color:#8a98b3;">
   Nenhum serviço encontrado.
 </div>
 <script>
@@ -125,6 +112,7 @@ const busca = document.getElementById('busca');
 const filtro = document.getElementById('filtro-categoria');
 const lista = document.getElementById('lista-servicos');
 const vazio = document.getElementById('sem-resultados');
+
 function render() {
   const q = busca.value.trim().toLowerCase();
   const cat = filtro.value;
@@ -150,7 +138,7 @@ render();
 
 </main>
 <footer>
-  Catálogo UP &middot; Gerado automaticamente a partir do Google Sheets
+  Catálogo UP &middot; Gabriel Informática - gabryes@gmail.com - (86)9 9532-5524 - 2026
 </footer>
 </body>
 </html>
