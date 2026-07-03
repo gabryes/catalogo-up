@@ -1,261 +1,428 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Início | Catálogo UP</title>
-<style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-      color: #0B1E40;
-      background: #f5f7fb;
-      line-height: 1.6;
-    }
-    header {
-      background: #0B1E40;
-      color: #fff;
-      padding: 1.5rem 1rem;
-      text-align: center;
-    }
-    header h1 { font-size: 1.6rem; font-weight: 700; }
-    header h1 a { color: #fff; text-decoration: none; }
-    header p { opacity: 0.8; margin-top: 0.3rem; font-size: 0.95rem; }
-    main { max-width: 960px; margin: 2rem auto; padding: 0 1rem; }
-    .barra-busca {
-      display: flex; flex-wrap: wrap; gap: 0.75rem; margin-bottom: 1.5rem;
-    }
-    .barra-busca input[type="text"],
-    .barra-busca select {
-      padding: 0.7rem 0.9rem; border: 1px solid #d0d7e2; border-radius: 8px;
-      font-size: 1rem; background: #fff; color: #0B1E40;
-    }
-    .barra-busca input[type="text"] { flex: 1 1 260px; }
-    .barra-busca select { flex: 0 1 220px; }
-    .barra-busca input:focus, .barra-busca select:focus {
-      outline: none; border-color: #0055D4;
-      box-shadow: 0 0 0 3px rgba(0,85,212,0.15);
-    }
-    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 1rem; }
-    .card {
-      background: #fff; border-radius: 10px; padding: 1.2rem;
-      box-shadow: 0 1px 3px rgba(11,30,64,0.08);
-      border: 1px solid #e6ebf2; display: flex; flex-direction: column;
-      transition: transform 0.15s ease, box-shadow 0.15s ease;
-    }
-    .card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,85,212,0.18); }
-    .card h3 { color: #0055D4; font-size: 1.1rem; margin-bottom: 0.4rem; }
-    .card .categoria {
-      display: inline-block; font-size: 0.75rem; font-weight: 600;
-      background: rgba(0,85,212,0.1); color: #0055D4;
-      padding: 0.2rem 0.6rem; border-radius: 999px; margin-bottom: 0.6rem;
-      align-self: flex-start;
-    }
-    .card .descricao { color: #4a5878; font-size: 0.9rem; flex: 1; }
-    .card a.ver {
-      margin-top: 0.9rem; color: #0055D4; text-decoration: none;
-      font-weight: 600; font-size: 0.9rem;
-    }
-    .card a.ver:hover { text-decoration: underline; }
-    .detalhe { background: #fff; border-radius: 12px; padding: 2rem; box-shadow: 0 1px 3px rgba(11,30,64,0.08); }
-    .detalhe h2 { color: #0055D4; margin-bottom: 0.5rem; }
-    .detalhe .categoria {
-      display: inline-block; font-size: 0.8rem; font-weight: 600;
-      background: rgba(0,85,212,0.1); color: #0055D4;
-      padding: 0.25rem 0.7rem; border-radius: 999px; margin-bottom: 1rem;
-    }
-    .detalhe .descricao { margin-bottom: 1.5rem; color: #33415c; }
-    .detalhe .info { display: grid; grid-template-columns: 1fr; gap: 0.8rem; }
-    .detalhe .info-item { border-top: 1px solid #eef2f7; padding-top: 0.6rem; }
-    .detalhe .info-item .rotulo { font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.04em; color: #8a98b3; }
-    .detalhe .info-item .valor { color: #0B1E40; }
-    .detalhe .info-item a { color: #0055D4; text-decoration: none; }
-    .detalhe .info-item a:hover { text-decoration: underline; }
-    .voltar { display: inline-block; margin-bottom: 1rem; color: #0055D4; text-decoration: none; font-weight: 600; }
-    .voltar:hover { text-decoration: underline; }
-    .vazio { text-align: center; color: #8a98b3; padding: 2rem; }
-    footer { text-align: center; padding: 2rem 1rem; color: #8a98b3; font-size: 0.85rem; }
-    .btn {
-      display: inline-block; background: #0055D4; color: #fff;
-      padding: 0.6rem 1.2rem; border-radius: 8px; text-decoration: none;
-      font-weight: 600; margin-top: 1rem;
-    }
-    .btn:hover { background: #0B1E40; }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Catálogo UP - Serviços</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <style>
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+  background: #f5f5f5;
+  color: #333;
+  line-height: 1.6;
+}
+
+.container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+/* Header */
+.header {
+  background: #2563eb;
+  color: #fff;
+  padding: 30px 20px;
+  text-align: center;
+}
+
+.header h1 {
+  font-size: 1.8rem;
+  margin-bottom: 5px;
+}
+
+.header p {
+  font-size: 0.95rem;
+  opacity: 0.9;
+}
+
+/* Search / Filter */
+.search-bar {
+  background: #fff;
+  padding: 15px 20px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.search-bar .container {
+  padding: 0;
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.search-input {
+  flex: 1;
+  min-width: 200px;
+  padding: 10px 15px;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 1rem;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.search-input:focus {
+  border-color: #2563eb;
+}
+
+.filter-select {
+  padding: 10px 15px;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 1rem;
+  outline: none;
+  cursor: pointer;
+  background: #fff;
+  transition: border-color 0.2s;
+}
+
+.filter-select:focus {
+  border-color: #2563eb;
+}
+
+/* Lista de serviços */
+.service-list {
+  list-style: none;
+  background: #fff;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+  margin-top: 20px;
+}
+
+.service-item {
+  display: flex;
+  align-items: center;
+  padding: 18px 20px;
+  border-bottom: 1px solid #f0f0f0;
+  text-decoration: none;
+  color: inherit;
+  transition: background 0.15s ease;
+  cursor: pointer;
+}
+
+.service-item:last-child {
+  border-bottom: none;
+}
+
+.service-item:hover {
+  background: #eff6ff;
+}
+
+.service-item-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.service-item-name {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin-bottom: 2px;
+}
+
+.service-item-category {
+  display: inline-block;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #2563eb;
+  background: #eff6ff;
+  padding: 2px 10px;
+  border-radius: 20px;
+  margin-bottom: 5px;
+}
+
+.service-item-desc {
+  font-size: 0.9rem;
+  color: #666;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.service-item-arrow {
+  color: #ccc;
+  font-size: 1.2rem;
+  margin-left: 15px;
+  flex-shrink: 0;
+}
+
+.no-results {
+  text-align: center;
+  padding: 40px 20px;
+  color: #999;
+  font-size: 1rem;
+  display: none;
+}
+
+/* Página de detalhes - Card */
+.detail-card {
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  padding: 30px;
+  margin-top: 20px;
+}
+
+.detail-header {
+  margin-bottom: 25px;
+  padding-bottom: 20px;
+  border-bottom: 2px solid #f0f0f0;
+}
+
+.detail-name {
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin-bottom: 8px;
+}
+
+.detail-category {
+  display: inline-block;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #2563eb;
+  background: #eff6ff;
+  padding: 4px 14px;
+  border-radius: 20px;
+}
+
+.detail-section {
+  margin-bottom: 18px;
+}
+
+.detail-label {
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #999;
+  margin-bottom: 4px;
+}
+
+.detail-value {
+  font-size: 1rem;
+  color: #333;
+}
+
+.detail-value a {
+  color: #2563eb;
+  text-decoration: none;
+}
+
+.detail-value a:hover {
+  text-decoration: underline;
+}
+
+.detail-desc {
+  font-size: 1rem;
+  color: #444;
+  line-height: 1.7;
+}
+
+/* Redes sociais */
+.social-icons {
+  display: flex;
+  gap: 12px;
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 2px solid #f0f0f0;
+}
+
+.social-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  font-size: 1.3rem;
+  color: #fff;
+  text-decoration: none;
+  transition: opacity 0.2s, transform 0.2s;
+}
+
+.social-icon:hover {
+  opacity: 0.85;
+  transform: scale(1.05);
+}
+
+.social-icon.instagram {
+  background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888);
+}
+
+.social-icon.whatsapp {
+  background: #25d366;
+}
+
+/* Botão voltar */
+.back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  background: #fff;
+  color: #2563eb;
+  text-decoration: none;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  border: 2px solid #2563eb;
+  transition: background 0.2s, color 0.2s;
+}
+
+.back-btn:hover {
+  background: #2563eb;
+  color: #fff;
+}
+
+/* Footer */
+.footer {
+  text-align: center;
+  padding: 30px 20px;
+  color: #999;
+  font-size: 0.85rem;
+}
+
+/* Responsivo */
+@media (max-width: 600px) {
+  .header h1 {
+    font-size: 1.4rem;
+  }
+
+  .container {
+    padding: 15px;
+  }
+
+  .service-item {
+    padding: 15px;
+  }
+
+  .service-item-name {
+    font-size: 1rem;
+  }
+
+  .service-item-desc {
+    white-space: normal;
+  }
+
+  .detail-card {
+    padding: 20px;
+  }
+
+  .detail-name {
+    font-size: 1.3rem;
+  }
+
+  .search-bar .container {
+    flex-direction: column;
+  }
+
+  .search-input, .filter-select {
+    width: 100%;
+  }
+}
+
+  </style>
 </head>
 <body>
-<header>
-  <h1><a href="index.html">Catálogo UP</a></h1>
-  <p>Encontre o serviço que você precisa</p>
-</header>
-<main>
+  <div class="header">
+    <h1><i class="fas fa-tools"></i> Catálogo UP</h1>
+    <p>Encontre os melhores serviços da sua região</p>
+  </div>
 
-<div class="barra-busca">
-  <input type="text" id="busca" placeholder="Buscar por nome ou descrição..." autocomplete="off">
-  <select id="filtro-categoria">
-    <option value="">Todas as categorias</option>
-    <option value="Alimentação">Alimentação</option>
-<option value="Beleza">Beleza</option>
-<option value="Comércio">Comércio</option>
-<option value="Consultoria">Consultoria</option>
+  <div class="search-bar">
+    <div class="container">
+      <input type="text" class="search-input" id="searchInput" placeholder="Buscar serviço...">
+      <select class="filter-select" id="categoryFilter">
+        <option value="">Todas as categorias</option>
+        <option value="Beleza">Beleza</option>
 <option value="Costureira">Costureira</option>
-<option value="Educação">Educação</option>
-<option value="Instalação de Câmeras">Instalação de Câmeras</option>
-<option value="Provedor de Internet">Provedor de Internet</option>
-<option value="Saúde">Saúde</option>
-<option value="Serviços Gerais">Serviços Gerais</option>
-  </select>
-</div>
-<div class="grid" id="lista-servicos">
-<article class="card" data-nome="maria costureira" data-categoria="Costureira">
-  <span class="categoria">Costureira</span>
-  <h3>Maria Costureira</h3>
-  <p class="descricao">Costura, consertos e ajustes em geral</p>
-  <a class="ver" href="services/maria-costureira/index.html">Ver detalhes &rarr;</a>
-</article>
-<article class="card" data-nome="netfast internet" data-categoria="Provedor de Internet">
-  <span class="categoria">Provedor de Internet</span>
-  <h3>NetFast Internet</h3>
-  <p class="descricao">Provedor de internet de alta velocidade</p>
-  <a class="ver" href="services/netfast-internet/index.html">Ver detalhes &rarr;</a>
-</article>
-<article class="card" data-nome="segurança total" data-categoria="Instalação de Câmeras">
-  <span class="categoria">Instalação de Câmeras</span>
-  <h3>Segurança Total</h3>
-  <p class="descricao">Instalação e manutenção de câmeras de segurança</p>
-  <a class="ver" href="services/seguranca-total/index.html">Ver detalhes &rarr;</a>
-</article>
-<article class="card" data-nome="pizzaria bella italia" data-categoria="Alimentação">
-  <span class="categoria">Alimentação</span>
-  <h3>Pizzaria Bella Italia</h3>
-  <p class="descricao">Pizzaria tradicional italiana com delivery</p>
-  <a class="ver" href="services/pizzaria-bella-italia/index.html">Ver detalhes &rarr;</a>
-</article>
-<article class="card" data-nome="clínica saúde plena" data-categoria="Saúde">
-  <span class="categoria">Saúde</span>
-  <h3>Clínica Saúde Plena</h3>
-  <p class="descricao">Clínica geral com atendimento 24h</p>
-  <a class="ver" href="services/clinica-saude-plena/index.html">Ver detalhes &rarr;</a>
-</article>
-<article class="card" data-nome="instituto educação plus" data-categoria="Educação">
-  <span class="categoria">Educação</span>
-  <h3>Instituto Educação Plus</h3>
-  <p class="descricao">Cursos de idiomas e reforço escolar</p>
-  <a class="ver" href="services/instituto-educacao-plus/index.html">Ver detalhes &rarr;</a>
-</article>
-<article class="card" data-nome="encanador express" data-categoria="Serviços Gerais">
-  <span class="categoria">Serviços Gerais</span>
-  <h3>Encanador Express</h3>
-  <p class="descricao">Encanamento, hidráulica e manutenção</p>
-  <a class="ver" href="services/encanador-express/index.html">Ver detalhes &rarr;</a>
-</article>
-<article class="card" data-nome="salão beleza moderna" data-categoria="Beleza">
-  <span class="categoria">Beleza</span>
-  <h3>Salão Beleza Moderna</h3>
-  <p class="descricao">Cabelo, manicure, pedicure e estética</p>
-  <a class="ver" href="services/salao-beleza-moderna/index.html">Ver detalhes &rarr;</a>
-</article>
-<article class="card" data-nome="consultoria empresarial xyz" data-categoria="Consultoria">
-  <span class="categoria">Consultoria</span>
-  <h3>Consultoria Empresarial XYZ</h3>
-  <p class="descricao">Consultoria em gestão e estratégia empresarial</p>
-  <a class="ver" href="services/consultoria-empresarial-xyz/index.html">Ver detalhes &rarr;</a>
-</article>
-<article class="card" data-nome="eletricista confiável" data-categoria="Serviços Gerais">
-  <span class="categoria">Serviços Gerais</span>
-  <h3>Eletricista Confiável</h3>
-  <p class="descricao">Serviços elétricos residenciais e comerciais</p>
-  <a class="ver" href="services/eletricista-confiavel/index.html">Ver detalhes &rarr;</a>
-</article>
-<article class="card" data-nome="academia força total" data-categoria="Saúde">
-  <span class="categoria">Saúde</span>
-  <h3>Academia Força Total</h3>
-  <p class="descricao">Academia de musculação e personal trainer</p>
-  <a class="ver" href="services/academia-forca-total/index.html">Ver detalhes &rarr;</a>
-</article>
-<article class="card" data-nome="loja moda elegância" data-categoria="Comércio">
-  <span class="categoria">Comércio</span>
-  <h3>Loja Moda Elegância</h3>
-  <p class="descricao">Loja de roupas e acessórios femininos</p>
-  <a class="ver" href="services/loja-moda-elegancia/index.html">Ver detalhes &rarr;</a>
-</article>
-<article class="card" data-nome="mecânica do joão" data-categoria="Serviços Gerais">
-  <span class="categoria">Serviços Gerais</span>
-  <h3>Mecânica do João</h3>
-  <p class="descricao">Mecânica geral e manutenção de veículos</p>
-  <a class="ver" href="services/mecanica-do-joao/index.html">Ver detalhes &rarr;</a>
-</article>
-<article class="card" data-nome="fotografia momentos" data-categoria="Serviços Gerais">
-  <span class="categoria">Serviços Gerais</span>
-  <h3>Fotografia Momentos</h3>
-  <p class="descricao">Fotografia profissional para eventos</p>
-  <a class="ver" href="services/fotografia-momentos/index.html">Ver detalhes &rarr;</a>
-</article>
-<article class="card" data-nome="padaria pão quente" data-categoria="Alimentação">
-  <span class="categoria">Alimentação</span>
-  <h3>Padaria Pão Quente</h3>
-  <p class="descricao">Padaria artesanal com produtos frescos diários</p>
-  <a class="ver" href="services/padaria-pao-quente/index.html">Ver detalhes &rarr;</a>
-</article>
-<article class="card" data-nome="consultório odontológico sorriso" data-categoria="Saúde">
-  <span class="categoria">Saúde</span>
-  <h3>Consultório Odontológico Sorriso</h3>
-  <p class="descricao">Odontologia geral e estética</p>
-  <a class="ver" href="services/consultorio-odontologico-sorriso/index.html">Ver detalhes &rarr;</a>
-</article>
-<article class="card" data-nome="aulas de dança studio" data-categoria="Educação">
-  <span class="categoria">Educação</span>
-  <h3>Aulas de Dança Studio</h3>
-  <p class="descricao">Aulas de dança: ballet, jazz e contemporâneo</p>
-  <a class="ver" href="services/aulas-de-danca-studio/index.html">Ver detalhes &rarr;</a>
-</article>
-<article class="card" data-nome="limpeza profissional" data-categoria="Serviços Gerais">
-  <span class="categoria">Serviços Gerais</span>
-  <h3>Limpeza Profissional</h3>
-  <p class="descricao">Limpeza residencial e comercial</p>
-  <a class="ver" href="services/limpeza-profissional/index.html">Ver detalhes &rarr;</a>
-</article>
-<article class="card" data-nome="restaurante sabor caseiro" data-categoria="Alimentação">
-  <span class="categoria">Alimentação</span>
-  <h3>Restaurante Sabor Caseiro</h3>
-  <p class="descricao">Restaurante com comida caseira e delivery</p>
-  <a class="ver" href="services/restaurante-sabor-caseiro/index.html">Ver detalhes &rarr;</a>
-</article>
-</div>
-<div class="vazio" id="sem-resultados" style="display:none;">
-  Nenhum serviço encontrado para a sua busca.
-</div>
-<script>
-const SERVICOS = [{"id": "maria-costureira", "nome": "Maria Costureira", "categoria": "Costureira", "descricao": "Costura, consertos e ajustes em geral"}, {"id": "netfast-internet", "nome": "NetFast Internet", "categoria": "Provedor de Internet", "descricao": "Provedor de internet de alta velocidade"}, {"id": "seguranca-total", "nome": "Segurança Total", "categoria": "Instalação de Câmeras", "descricao": "Instalação e manutenção de câmeras de segurança"}, {"id": "pizzaria-bella-italia", "nome": "Pizzaria Bella Italia", "categoria": "Alimentação", "descricao": "Pizzaria tradicional italiana com delivery"}, {"id": "clinica-saude-plena", "nome": "Clínica Saúde Plena", "categoria": "Saúde", "descricao": "Clínica geral com atendimento 24h"}, {"id": "instituto-educacao-plus", "nome": "Instituto Educação Plus", "categoria": "Educação", "descricao": "Cursos de idiomas e reforço escolar"}, {"id": "encanador-express", "nome": "Encanador Express", "categoria": "Serviços Gerais", "descricao": "Encanamento, hidráulica e manutenção"}, {"id": "salao-beleza-moderna", "nome": "Salão Beleza Moderna", "categoria": "Beleza", "descricao": "Cabelo, manicure, pedicure e estética"}, {"id": "consultoria-empresarial-xyz", "nome": "Consultoria Empresarial XYZ", "categoria": "Consultoria", "descricao": "Consultoria em gestão e estratégia empresarial"}, {"id": "eletricista-confiavel", "nome": "Eletricista Confiável", "categoria": "Serviços Gerais", "descricao": "Serviços elétricos residenciais e comerciais"}, {"id": "academia-forca-total", "nome": "Academia Força Total", "categoria": "Saúde", "descricao": "Academia de musculação e personal trainer"}, {"id": "loja-moda-elegancia", "nome": "Loja Moda Elegância", "categoria": "Comércio", "descricao": "Loja de roupas e acessórios femininos"}, {"id": "mecanica-do-joao", "nome": "Mecânica do João", "categoria": "Serviços Gerais", "descricao": "Mecânica geral e manutenção de veículos"}, {"id": "fotografia-momentos", "nome": "Fotografia Momentos", "categoria": "Serviços Gerais", "descricao": "Fotografia profissional para eventos"}, {"id": "padaria-pao-quente", "nome": "Padaria Pão Quente", "categoria": "Alimentação", "descricao": "Padaria artesanal com produtos frescos diários"}, {"id": "consultorio-odontologico-sorriso", "nome": "Consultório Odontológico Sorriso", "categoria": "Saúde", "descricao": "Odontologia geral e estética"}, {"id": "aulas-de-danca-studio", "nome": "Aulas de Dança Studio", "categoria": "Educação", "descricao": "Aulas de dança: ballet, jazz e contemporâneo"}, {"id": "limpeza-profissional", "nome": "Limpeza Profissional", "categoria": "Serviços Gerais", "descricao": "Limpeza residencial e comercial"}, {"id": "restaurante-sabor-caseiro", "nome": "Restaurante Sabor Caseiro", "categoria": "Alimentação", "descricao": "Restaurante com comida caseira e delivery"}];
-const busca = document.getElementById('busca');
-const filtro = document.getElementById('filtro-categoria');
-const lista = document.getElementById('lista-servicos');
-const vazio = document.getElementById('sem-resultados');
-function render() {
-  const q = busca.value.trim().toLowerCase();
-  const cat = filtro.value;
-  const filtrados = SERVICOS.filter(s => {
-    const matchCat = !cat || s.categoria === cat;
-    const matchQ = !q || s.nome.toLowerCase().includes(q) || s.descricao.toLowerCase().includes(q);
-    return matchCat && matchQ;
-  });
-  lista.innerHTML = filtrados.map(s => `
-    <article class="card">
-      <span class="categoria">${s.categoria}</span>
-      <h3>${s.nome}</h3>
-      <p class="descricao">${(s.descricao||'').slice(0,120)}${(s.descricao||'').length>120?'...':''}</p>
-      <a class="ver" href="services/${s.id}/index.html">Ver detalhes &rarr;</a>
-    </article>
-  `).join('');
-  vazio.style.display = filtrados.length ? 'none' : 'block';
-}
-busca.addEventListener('input', render);
-filtro.addEventListener('change', render);
-</script>
+<option value="Encanador">Encanador</option>
+      </select>
+    </div>
+  </div>
 
-</main>
-<footer>
-  Catálogo UP &middot; Gerado automaticamente a partir do Google Sheets
-</footer>
+  <div class="container">
+    <ul class="service-list" id="serviceList">
+        <li class="service-item" data-name="maria costureira" data-category="costureira">
+          <a href="services/maria-costureira/" style="text-decoration:none;color:inherit;display:flex;align-items:center;width:100%">
+            <div class="service-item-content">
+              <div class="service-item-name">Maria Costureira</div>
+              <span class="service-item-category">Costureira</span>
+              <div class="service-item-desc">Costura, consertos, ajustes e reformas de roupas em geral. Atendimento rápido e...</div>
+            </div>
+            <span class="service-item-arrow"><i class="fas fa-chevron-right"></i></span>
+          </a>
+        </li>
+        <li class="service-item" data-name="joão encanador" data-category="encanador">
+          <a href="services/joao-encanador/" style="text-decoration:none;color:inherit;display:flex;align-items:center;width:100%">
+            <div class="service-item-content">
+              <div class="service-item-name">João Encanador</div>
+              <span class="service-item-category">Encanador</span>
+              <div class="service-item-desc">Serviços de hidráulica, reparos de vazamentos, instalação de torneiras e caixas...</div>
+            </div>
+            <span class="service-item-arrow"><i class="fas fa-chevron-right"></i></span>
+          </a>
+        </li>
+        <li class="service-item" data-name="ana cabeleireira" data-category="beleza">
+          <a href="services/ana-cabeleireira/" style="text-decoration:none;color:inherit;display:flex;align-items:center;width:100%">
+            <div class="service-item-content">
+              <div class="service-item-name">Ana Cabeleireira</div>
+              <span class="service-item-category">Beleza</span>
+              <div class="service-item-desc">Cortes, coloração, tratamentos capilares e penteados para todas as ocasiões.</div>
+            </div>
+            <span class="service-item-arrow"><i class="fas fa-chevron-right"></i></span>
+          </a>
+        </li>
+    </ul>
+    <div class="no-results" id="noResults">
+      <i class="fas fa-search" style="font-size:2rem;margin-bottom:10px"></i>
+      <p>Nenhum serviço encontrado.</p>
+    </div>
+  </div>
+
+  <div class="footer">
+    <p>Catálogo UP &copy; 2025</p>
+  </div>
+
+  <script>
+    (function() {
+      var searchInput = document.getElementById('searchInput');
+      var categoryFilter = document.getElementById('categoryFilter');
+      var items = document.querySelectorAll('.service-item');
+      var noResults = document.getElementById('noResults');
+
+      function filter() {
+        var query = searchInput.value.toLowerCase().trim();
+        var cat = categoryFilter.value.toLowerCase().trim();
+        var visible = 0;
+        items.forEach(function(item) {
+          var name = item.getAttribute('data-name') || '';
+          var category = item.getAttribute('data-category') || '';
+          var matchName = name.indexOf(query) !== -1;
+          var matchCat = !cat || category === cat;
+          if (matchName && matchCat) {
+            item.style.display = '';
+            visible++;
+          } else {
+            item.style.display = 'none';
+          }
+        });
+        noResults.style.display = visible === 0 ? 'block' : 'none';
+      }
+
+      searchInput.addEventListener('input', filter);
+      categoryFilter.addEventListener('change', filter);
+    })();
+  </script>
 </body>
 </html>

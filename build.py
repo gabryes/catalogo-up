@@ -1,514 +1,816 @@
 #!/usr/bin/env python3
 """
-build.py - Catálogo UP
-Gera um site estático a partir de dados de uma planilha Google Sheets.
+Catálogo UP - Build Script
+Gera páginas estáticas (index + detalhes) a partir de dados do Google Sheets.
 """
 
-import base64
-import json
 import os
 import re
-import sys
+import json
+import html
 import shutil
 from pathlib import Path
 
 try:
     import gspread
+    from oauth2client.service_account import ServiceAccountCredentials
 except ImportError:
-    print("[Catálogo UP] ERRO: O pacote 'gspread' não está instalado.")
-    print("               Instale com: pip install gspread")
-    sys.exit(1)
+    gspread = None
+    ServiceAccountCredentials = None
 
+# ---------------------------------------------------------------------------
 # Configurações
-BASE_DIR = Path(__file__).resolve().parent
+# ---------------------------------------------------------------------------
+
+BASE_DIR = Path(__file__).parent.resolve()
 PUBLIC_DIR = BASE_DIR / "public"
+SERVICES_DIR = PUBLIC_DIR / "services"
+ASSETS_DIR = PUBLIC_DIR / "assets"
 
-COBERTA_AZUL = "#0055D4"
-AZUL_MARINHO = "#0B1E40"
+GOOGLE_SHEETS_KEY = os.environ.get("GOOGLE_SHEETS_KEY", "")
+GOOGLE_CREDENTIALS_PATH = os.environ.get("GOOGLE_CREDENTIALS_PATH", "")
 
-COLUNAS_ESPERADAS = [
-    "id", "nome", "categoria", "responsavel", "telefone",
-    "whatsapp", "email", "endereco", "horario", "descricao", "instagram", "foto_logo_url", "publicidade",
-]
+# Colunas esperadas na planilha
+COLUMN_MAP = {
+    "nome": ["nome", "name", "titulo", "title"],
+    "categoria": ["categoria", "category", "tipo"],
+    "descricao": ["descricao", "description", "desc"],
+    "telefone": ["telefone", "phone", "tel", "whatsapp"],
+    "email": ["email", "e-mail", "mail"],
+    "endereco": ["endereco", "address", "local", "localizacao"],
+    "horario": ["horario", "horários", "hours", "funcionamento"],
+    "instagram": ["instagram", "insta", "ig"],
+    "whatsapp": ["whatsapp", "wpp", "wa", "zap"],
+}
 
-# Funções auxiliares
-def slugify(texto: str) -> str:
-    texto = (texto or "").strip().lower()
-    texto = re.sub(r"[áàâãä]", "a", texto)
-    texto = re.sub(r"[éèêë]", "e", texto)
-    texto = re.sub(r"[íìîï]", "i", texto)
-    texto = re.sub(r"[óòôõö]", "o", texto)
-    texto = re.sub(r"[úùûü]", "u", texto)
-    texto = re.sub(r"ç", "c", texto)
-    texto = re.sub(r"ñ", "n", texto)
-    texto = re.sub(r"[^a-z0-9]+", "-", texto)
-    texto = re.sub(r"^-+|-+$", "", texto)
-    return texto or "servico"
+# ---------------------------------------------------------------------------
+# Utilidades
+# ---------------------------------------------------------------------------
 
-def escapa_html(texto: str) -> str:
-    if texto is None:
+def slugify(text: str) -> str:
+    """Converte texto em slug amigável para URL."""
+    if not text:
+        return "servico"
+    text = str(text).lower().strip()
+    text = re.sub(r"[áàâãä]", "a", text)
+    text = re.sub(r"[éèêë]", "e", text)
+    text = re.sub(r"[íìîï]", "i", text)
+    text = re.sub(r"[óòôõö]", "o", text)
+    text = re.sub(r"[úùûü]", "u", text)
+    text = re.sub(r"[ç]", "c", text)
+    text = re.sub(r"[ñ]", "n", text)
+    text = re.sub(r"[^a-z0-9\s-]", "", text)
+    text = re.sub(r"[\s]+", "-", text)
+    text = re.sub(r"-+", "-", text)
+    text = text.strip("-")
+    return text or "servico"
+
+
+def ensure_unique_slug(base_slug: str, existing_slugs: set) -> str:
+    """Garante que o slug seja único."""
+    slug = base_slug
+    counter = 2
+    while slug in existing_slugs:
+        slug = f"{base_slug}-{counter}"
+        counter += 1
+    existing_slugs.add(slug)
+    return slug
+
+
+def esc(text) -> str:
+    """Escapa HTML."""
+    return html.escape(str(text)) if text else ""
+
+
+def truncate(text: str, max_len: int = 100) -> str:
+    """Trunca texto para descrição resumida."""
+    if not text:
         return ""
-    texto = str(texto)
-    return (
-        texto.replace("&", "&amp;")
-        .replace("<", "&lt;")
-        .replace(">", "&gt;")
-        .replace('"', "&quot;")
-        .replace("'", "&#39;")
-    )
+    text = str(text).strip()
+    if len(text) <= max_len:
+        return text
+    return text[:max_len].rsplit(" ", 1)[0] + "..."
 
-def garantir_unicos_slugs(servicos):
-    usados = set()
-    for s in servicos:
-        base = slugify(s.get("nome", "servico"))
-        slug = base
-        i = 1
-        while slug in usados:
-            slug = f"{base}-{i}"
-            i += 1
-        usados.add(slug)
-        s["id"] = slug
-    return servicos
 
-# CSS e Templates
-def css_base() -> str:
-    return f"""
-    * {{ box-sizing: border-box; margin: 0; padding: 0; }}
-    body {{
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-      color: {AZUL_MARINHO};
-      background: #f5f7fb;
-      line-height: 1.6;
-    }}
-    header {{
-      background: {AZUL_MARINHO};
-      color: #fff;
-      padding: 1.5rem 1rem;
-      text-align: center;
-    }}
-    header h1 {{ font-size: 1.6rem; font-weight: 700; }}
-    header h1 a {{ color: #fff; text-decoration: none; }}
-    header p {{ opacity: 0.8; margin-top: 0.3rem; font-size: 0.95rem; }}
-    main {{ max-width: 960px; margin: 2rem auto; padding: 0 1rem; }}
-    .barra-busca {{
-      display: flex; flex-wrap: wrap; gap: 0.75rem; margin-bottom: 1.5rem;
-    }}
-    .barra-busca input[type="text"],
-    .barra-busca select {{
-      padding: 0.7rem 0.9rem; border: 1px solid #d0d7e2; border-radius: 8px;
-      font-size: 1rem; background: #fff; color: {AZUL_MARINHO};
-    }}
-    .barra-busca input[type="text"] {{ flex: 1 1 260px; }}
-    .barra-busca select {{ flex: 0 1 220px; }}
-    .barra-busca input:focus, .barra-busca select:focus {{
-      outline: none; border-color: {COBERTA_AZUL};
-      box-shadow: 0 0 0 3px rgba(0,85,212,0.15);
-    }}
-    .grid {{ display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 1rem; }}
-    .card {{
-      background: #fff; border-radius: 10px; padding: 1.2rem;
-      box-shadow: 0 1px 3px rgba(11,30,64,0.08);
-      border: 1px solid #e6ebf2; display: flex; flex-direction: column;
-      transition: transform 0.15s ease, box-shadow 0.15s ease;
-    }}
-    .card:hover {{ transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,85,212,0.18); }}
-    .card h3 {{ color: {COBERTA_AZUL}; font-size: 1.1rem; margin-bottom: 0.4rem; }}
-    .card .categoria {{
-      display: inline-block; font-size: 0.75rem; font-weight: 600;
-      background: rgba(0,85,212,0.1); color: {COBERTA_AZUL};
-      padding: 0.2rem 0.6rem; border-radius: 999px; margin-bottom: 0.6rem;
-      align-self: flex-start;
-    }}
-    .card .descricao {{ color: #4a5878; font-size: 0.9rem; flex: 1; }}
-    .card a.ver {{
-      margin-top: 0.9rem; color: {COBERTA_AZUL}; text-decoration: none;
-      font-weight: 600; font-size: 0.9rem;
-    }}
-    .card a.ver:hover {{ text-decoration: underline; }}
-    .detalhe {{ background: #fff; border-radius: 12px; padding: 2rem; box-shadow: 0 1px 3px rgba(11,30,64,0.08); }}
-    .detalhe h2 {{ color: {COBERTA_AZUL}; margin-bottom: 0.5rem; }}
-    .detalhe .categoria {{
-      display: inline-block; font-size: 0.8rem; font-weight: 600;
-      background: rgba(0,85,212,0.1); color: {COBERTA_AZUL};
-      padding: 0.25rem 0.7rem; border-radius: 999px; margin-bottom: 1rem;
-    }}
-    .detalhe .descricao {{ margin-bottom: 1.5rem; color: #33415c; }}
-    .detalhe .info {{ display: grid; grid-template-columns: 1fr; gap: 0.8rem; }}
-    .detalhe .info-item {{ border-top: 1px solid #eef2f7; padding-top: 0.6rem; }}
-    .detalhe .info-item .rotulo {{ font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.04em; color: #8a98b3; }}
-    .detalhe .info-item .valor {{ color: {AZUL_MARINHO}; }}
-    .detalhe .info-item a {{ color: {COBERTA_AZUL}; text-decoration: none; }}
-    .detalhe .info-item a:hover {{ text-decoration: underline; }}
-    .voltar {{ display: inline-block; margin-bottom: 1rem; color: {COBERTA_AZUL}; text-decoration: none; font-weight: 600; }}
-    .voltar:hover {{ text-decoration: underline; }}
-    .vazio {{ text-align: center; color: #8a98b3; padding: 2rem; }}
-    footer {{ text-align: center; padding: 2rem 1rem; color: #8a98b3; font-size: 0.85rem; }}
-    .btn {{
-      display: inline-block; background: {COBERTA_AZUL}; color: #fff;
-      padding: 0.6rem 1.2rem; border-radius: 8px; text-decoration: none;
-      font-weight: 600; margin-top: 1rem;
-    }}
-    .btn:hover {{ background: {AZUL_MARINHO}; }}
-    """
+def normalize_row(headers: list, row: list) -> dict:
+    """Normaliza uma linha da planilha para um dict com chaves padrão."""
+    result = {key: "" for key in COLUMN_MAP.keys()}
+    header_lower = [str(h).lower().strip() if h else "" for h in headers]
 
-def cabecalho_html(titulo: str, prefix: str, subtitulo: str = "") -> str:
-    return f"""<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>{escapa_html(titulo)} | Catálogo UP</title>
-<style>{css_base()}</style>
-</head>
-<body>
-<header>
-  <h1><a href="{prefix}index.html">Catálogo UP</a></h1>
-  {f'<p>{escapa_html(subtitulo)}</p>' if subtitulo else '<p>Serviços da comunidade universitária</p>'}
-</header>
-<main>
-"""
+    for field, aliases in COLUMN_MAP.items():
+        for i, h in enumerate(header_lower):
+            if h in aliases and i < len(row):
+                result[field] = str(row[i]).strip() if row[i] else ""
+                break
+    return result
 
-def rodape_html() -> str:
-    return """
-</main>
-<footer>
-  Catálogo UP &middot; Gerado automaticamente a partir do Google Sheets
-</footer>
-</body>
-</html>
-"""
 
-# Geração de páginas
-def gerar_home(servicos, categorias):
-    prefix = ""
-    dados_json = json.dumps(
-        [
-            {
-                "id": s["id"],
-                "nome": s.get("nome", ""),
-                "categoria": s.get("categoria", ""),
-                "descricao": s.get("descricao", ""),
-            }
-            for s in servicos
-        ],
-        ensure_ascii=False,
-    )
+# ---------------------------------------------------------------------------
+# Leitura do Google Sheets
+# ---------------------------------------------------------------------------
 
-    opcoes_cat = "\n".join(
-        f'<option value="{escapa_html(c)}">{escapa_html(c)}</option>'
-        for c in categorias
-    )
-
-    cards = "\n".join(
-        f'''<article class="card" data-nome="{escapa_html(s.get('nome','').lower())}" data-categoria="{escapa_html(s.get('categoria',''))}">
-  <span class="categoria">{escapa_html(s.get('categoria',''))}</span>
-  <h3>{escapa_html(s.get('nome',''))}</h3>
-  <p class="descricao">{escapa_html((s.get('descricao','') or '')[:120])}{'...' if len(s.get('descricao','') or '') > 120 else ''}</p>
-  <a class="ver" href="{prefix}services/{s['id']}/index.html">Ver detalhes &rarr;</a>
-</article>'''
-        for s in servicos
-    )
-
-    html = cabecalho_html("Início", prefix, "Encontre o serviço que você precisa")
-    html += f"""
-<div class="barra-busca">
-  <input type="text" id="busca" placeholder="Buscar por nome ou descrição..." autocomplete="off">
-  <select id="filtro-categoria">
-    <option value="">Todas as categorias</option>
-    {opcoes_cat}
-  </select>
-</div>
-<div class="grid" id="lista-servicos">
-{cards}
-</div>
-<div class="vazio" id="sem-resultados" style="display:none;">
-  Nenhum serviço encontrado para a sua busca.
-</div>
-<script>
-const SERVICOS = {dados_json};
-const busca = document.getElementById('busca');
-const filtro = document.getElementById('filtro-categoria');
-const lista = document.getElementById('lista-servicos');
-const vazio = document.getElementById('sem-resultados');
-function render() {{
-  const q = busca.value.trim().toLowerCase();
-  const cat = filtro.value;
-  const filtrados = SERVICOS.filter(s => {{
-    const matchCat = !cat || s.categoria === cat;
-    const matchQ = !q || s.nome.toLowerCase().includes(q) || s.descricao.toLowerCase().includes(q);
-    return matchCat && matchQ;
-  }});
-  lista.innerHTML = filtrados.map(s => `
-    <article class="card">
-      <span class="categoria">${{s.categoria}}</span>
-      <h3>${{s.nome}}</h3>
-      <p class="descricao">${{(s.descricao||'').slice(0,120)}}${{(s.descricao||'').length>120?'...':''}}</p>
-      <a class="ver" href="services/${{s.id}}/index.html">Ver detalhes &rarr;</a>
-    </article>
-  `).join('');
-  vazio.style.display = filtrados.length ? 'none' : 'block';
-}}
-busca.addEventListener('input', render);
-filtro.addEventListener('change', render);
-</script>
-"""
-    html += rodape_html()
-    return html
-
-def gerar_lista_servicos(servicos, categorias):
-    prefix = "../"
-    opcoes_cat = "\n".join(
-        f'<option value="{escapa_html(c)}">{escapa_html(c)}</option>'
-        for c in categorias
-    )
-    dados_json = json.dumps(
-        [
-            {
-                "id": s["id"],
-                "nome": s.get("nome", ""),
-                "categoria": s.get("categoria", ""),
-                "descricao": s.get("descricao", ""),
-            }
-            for s in servicos
-        ],
-        ensure_ascii=False,
-    )
-
-    html = cabecalho_html("Serviços", prefix, "Lista completa de serviços")
-    html += f"""
-<a class="voltar" href="{prefix}index.html">&larr; Voltar ao início</a>
-<div class="barra-busca">
-  <input type="text" id="busca" placeholder="Buscar serviços..." autocomplete="off">
-  <select id="filtro-categoria">
-    <option value="">Todas as categorias</option>
-    {opcoes_cat}
-  </select>
-</div>
-<div class="grid" id="lista-servicos"></div>
-<div class="vazio" id="sem-resultados" style="display:none;">
-  Nenhum serviço encontrado.
-</div>
-<script>
-const SERVICOS = {dados_json};
-const busca = document.getElementById('busca');
-const filtro = document.getElementById('filtro-categoria');
-const lista = document.getElementById('lista-servicos');
-const vazio = document.getElementById('sem-resultados');
-function render() {{
-  const q = busca.value.trim().toLowerCase();
-  const cat = filtro.value;
-  const filtrados = SERVICOS.filter(s => {{
-    const matchCat = !cat || s.categoria === cat;
-    const matchQ = !q || s.nome.toLowerCase().includes(q) || s.descricao.toLowerCase().includes(q);
-    return matchCat && matchQ;
-  }});
-  lista.innerHTML = filtrados.map(s => `
-    <article class="card">
-      <span class="categoria">${{s.categoria}}</span>
-      <h3>${{s.nome}}</h3>
-      <p class="descricao">${{(s.descricao||'').slice(0,120)}}${{(s.descricao||'').length>120?'...':''}}</p>
-      <a class="ver" href="${{s.id}}/index.html">Ver detalhes &rarr;</a>
-    </article>
-  `).join('');
-  vazio.style.display = filtrados.length ? 'none' : 'block';
-}}
-busca.addEventListener('input', render);
-filtro.addEventListener('change', render);
-render();
-</script>
-"""
-    html += rodape_html()
-    return html
-
-def gerar_detalhe_servico(servico):
-    prefix = "../../"
-    nome = servico.get("nome", "Serviço")
-    categoria = servico.get("categoria", "")
-    descricao = servico.get("descricao", "")
-
-    campos = [
-        ("Telefone", servico.get("telefone", "")),
-        ("E-mail", servico.get("email", "")),
-        ("Endereço", servico.get("endereco", "")),
-        ("Horário", servico.get("horario", "")),
-        ("Contato", servico.get("contato", "")),
-    ]
-
-    linhas = []
-    for rotulo, valor in campos:
-        if valor and str(valor).strip():
-            v = escapa_html(valor)
-            if rotulo == "E-mail" and "@" in str(valor):
-                v = f'<a href="mailto:{escapa_html(valor)}">{escapa_html(valor)}</a>'
-            if rotulo == "Telefone":
-                tel = re.sub(r"[^0-9+]", "", str(valor))
-                v = f'<a href="tel:{tel}">{escapa_html(valor)}</a>'
-            linhas.append(
-                f'<div class="info-item"><div class="rotulo">{rotulo}</div>'
-                f'<div class="valor">{v}</div></div>'
-            )
-
-    link_html = ""
-    if servico.get("link") and str(servico.get("link")).strip():
-        link_html = f'<a class="btn" href="{escapa_html(servico["link"])}" target="_blank" rel="noopener">Acessar serviço &rarr;</a>'
-
-    html = cabecalho_html(nome, prefix, categoria)
-    html += f"""
-<a class="voltar" href="{prefix}index.html">&larr; Voltar ao início</a>
-<a class="voltar" href="{prefix}services/index.html" style="margin-left:1rem;">&larr; Todos os serviços</a>
-<div class="detalhe">
-  <span class="categoria">{escapa_html(categoria)}</span>
-  <h2>{escapa_html(nome)}</h2>
-  <p class="descricao">{escapa_html(descricao)}</p>
-  <div class="info">
-    {''.join(linhas)}
-  </div>
-  {link_html}
-</div>
-"""
-    html += rodape_html()
-    return html
-
-# Leitura de dados
-def obter_caminho_credenciais() -> str:
-    # Tenta usar variável de ambiente com base64
-    creds_base64 = os.environ.get("GOOGLE_CREDENTIALS_BASE64")
-    if creds_base64:
-        creds_json = base64.b64decode(creds_base64).decode('utf-8')
-        creds_path = BASE_DIR / "credentials_temp.json"
-        creds_path.write_text(creds_json, encoding='utf-8')
-        return str(creds_path)
-    
-    # Tenta arquivo local
-    env_path = os.environ.get("GOOGLE_CREDENTIALS_PATH")
-    if env_path and Path(env_path).exists():
-        return env_path
-
+def get_credentials_path() -> str:
+    """Retorna o caminho das credenciais do Google."""
+    if GOOGLE_CREDENTIALS_PATH and os.path.exists(GOOGLE_CREDENTIALS_PATH):
+        return GOOGLE_CREDENTIALS_PATH
     local = BASE_DIR / "credentials.json"
     if local.exists():
         return str(local)
+    return ""
 
-    raise FileNotFoundError(
-        "Credenciais do Google não encontradas.\\n"
-        "Defina a variável de ambiente GOOGLE_CREDENTIALS_BASE64 (Netlify) "
-        "ou coloque o arquivo credentials.json no diretório do projeto."
+
+def read_google_sheets() -> list:
+    """Lê dados do Google Sheets e retorna lista de serviços normalizados."""
+    if not gspread:
+        print("[Catálogo UP] AVISO: gspread não instalado. Usando dados de exemplo.")
+        return get_sample_data()
+
+    cred_path = get_credentials_path()
+    if not cred_path:
+        print("[Catálogo UP] AVISO: Credenciais do Google não encontradas.")
+        print("Defina GOOGLE_CREDENTIALS_PATH ou coloque credentials.json no projeto.")
+        print("Usando dados de exemplo para não falhar o build.")
+        return get_sample_data()
+
+    if not GOOGLE_SHEETS_KEY:
+        print("[Catálogo UP] AVISO: GOOGLE_SHEETS_KEY não definida. Usando dados de exemplo.")
+        return get_sample_data()
+
+    try:
+        print("[Catálogo UP] Lendo dados do Google Sheets...")
+        scope = [
+            "https://spreadsheets.google.com/feeds",
+            "https://www.googleapis.com/auth/drive",
+        ]
+        creds = ServiceAccountCredentials.from_json_keyfile_name(cred_path, scope)
+        client = gspread.authorize(creds)
+        sheet = client.open_by_key(GOOGLE_SHEETS_KEY).sheet1
+        data = sheet.get_all_values()
+
+        if not data or len(data) < 2:
+            print("[Catálogo UP] Planilha vazia. Usando dados de exemplo.")
+            return get_sample_data()
+
+        headers = data[0]
+        services = []
+        for row in data[1:]:
+            if not any(cell.strip() for cell in row):
+                continue
+            services.append(normalize_row(headers, row))
+
+        print(f"[Catálogo UP] {len(services)} serviços lidos da planilha.")
+        return services
+
+    except Exception as e:
+        print(f"[Catálogo UP] ERRO ao ler planilha: {e}")
+        print("Usando dados de exemplo.")
+        return get_sample_data()
+
+
+def get_sample_data() -> list:
+    """Dados de exemplo para quando não há credenciais."""
+    return [
+        {
+            "nome": "Maria Costureira",
+            "categoria": "Costureira",
+            "descricao": "Costura, consertos, ajustes e reformas de roupas em geral. Atendimento rápido e de qualidade.",
+            "telefone": "(11) 99999-9999",
+            "email": "maria@email.com",
+            "endereco": "Rua das Flores, 123 - Centro",
+            "horario": "Seg a Sex: 8h às 18h",
+            "instagram": "https://instagram.com/mariacostureira",
+            "whatsapp": "5511999999999",
+        },
+        {
+            "nome": "João Encanador",
+            "categoria": "Encanador",
+            "descricao": "Serviços de hidráulica, reparos de vazamentos, instalação de torneiras e caixas de descarga.",
+            "telefone": "(11) 88888-8888",
+            "email": "joao@email.com",
+            "endereco": "Av. Brasil, 456 - Bairro Novo",
+            "horario": "Seg a Sáb: 7h às 19h",
+            "instagram": "",
+            "whatsapp": "5511888888888",
+        },
+        {
+            "nome": "Ana Cabeleireira",
+            "categoria": "Beleza",
+            "descricao": "Cortes, coloração, tratamentos capilares e penteados para todas as ocasiões.",
+            "telefone": "(11) 77777-7777",
+            "email": "ana@email.com",
+            "endereco": "Rua da Beleza, 789 - Vila Nova",
+            "horario": "Ter a Sáb: 9h às 20h",
+            "instagram": "https://instagram.com/anacabelos",
+            "whatsapp": "5511777777777",
+        },
+    ]
+
+
+# ---------------------------------------------------------------------------
+# Geração de HTML
+# ---------------------------------------------------------------------------
+
+CSS = """
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+  background: #f5f5f5;
+  color: #333;
+  line-height: 1.6;
+}
+
+.container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+/* Header */
+.header {
+  background: #2563eb;
+  color: #fff;
+  padding: 30px 20px;
+  text-align: center;
+}
+
+.header h1 {
+  font-size: 1.8rem;
+  margin-bottom: 5px;
+}
+
+.header p {
+  font-size: 0.95rem;
+  opacity: 0.9;
+}
+
+/* Search / Filter */
+.search-bar {
+  background: #fff;
+  padding: 15px 20px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.search-bar .container {
+  padding: 0;
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.search-input {
+  flex: 1;
+  min-width: 200px;
+  padding: 10px 15px;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 1rem;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.search-input:focus {
+  border-color: #2563eb;
+}
+
+.filter-select {
+  padding: 10px 15px;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 1rem;
+  outline: none;
+  cursor: pointer;
+  background: #fff;
+  transition: border-color 0.2s;
+}
+
+.filter-select:focus {
+  border-color: #2563eb;
+}
+
+/* Lista de serviços */
+.service-list {
+  list-style: none;
+  background: #fff;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+  margin-top: 20px;
+}
+
+.service-item {
+  display: flex;
+  align-items: center;
+  padding: 18px 20px;
+  border-bottom: 1px solid #f0f0f0;
+  text-decoration: none;
+  color: inherit;
+  transition: background 0.15s ease;
+  cursor: pointer;
+}
+
+.service-item:last-child {
+  border-bottom: none;
+}
+
+.service-item:hover {
+  background: #eff6ff;
+}
+
+.service-item-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.service-item-name {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin-bottom: 2px;
+}
+
+.service-item-category {
+  display: inline-block;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #2563eb;
+  background: #eff6ff;
+  padding: 2px 10px;
+  border-radius: 20px;
+  margin-bottom: 5px;
+}
+
+.service-item-desc {
+  font-size: 0.9rem;
+  color: #666;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.service-item-arrow {
+  color: #ccc;
+  font-size: 1.2rem;
+  margin-left: 15px;
+  flex-shrink: 0;
+}
+
+.no-results {
+  text-align: center;
+  padding: 40px 20px;
+  color: #999;
+  font-size: 1rem;
+  display: none;
+}
+
+/* Página de detalhes - Card */
+.detail-card {
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  padding: 30px;
+  margin-top: 20px;
+}
+
+.detail-header {
+  margin-bottom: 25px;
+  padding-bottom: 20px;
+  border-bottom: 2px solid #f0f0f0;
+}
+
+.detail-name {
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin-bottom: 8px;
+}
+
+.detail-category {
+  display: inline-block;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #2563eb;
+  background: #eff6ff;
+  padding: 4px 14px;
+  border-radius: 20px;
+}
+
+.detail-section {
+  margin-bottom: 18px;
+}
+
+.detail-label {
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #999;
+  margin-bottom: 4px;
+}
+
+.detail-value {
+  font-size: 1rem;
+  color: #333;
+}
+
+.detail-value a {
+  color: #2563eb;
+  text-decoration: none;
+}
+
+.detail-value a:hover {
+  text-decoration: underline;
+}
+
+.detail-desc {
+  font-size: 1rem;
+  color: #444;
+  line-height: 1.7;
+}
+
+/* Redes sociais */
+.social-icons {
+  display: flex;
+  gap: 12px;
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 2px solid #f0f0f0;
+}
+
+.social-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  font-size: 1.3rem;
+  color: #fff;
+  text-decoration: none;
+  transition: opacity 0.2s, transform 0.2s;
+}
+
+.social-icon:hover {
+  opacity: 0.85;
+  transform: scale(1.05);
+}
+
+.social-icon.instagram {
+  background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888);
+}
+
+.social-icon.whatsapp {
+  background: #25d366;
+}
+
+/* Botão voltar */
+.back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  background: #fff;
+  color: #2563eb;
+  text-decoration: none;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  border: 2px solid #2563eb;
+  transition: background 0.2s, color 0.2s;
+}
+
+.back-btn:hover {
+  background: #2563eb;
+  color: #fff;
+}
+
+/* Footer */
+.footer {
+  text-align: center;
+  padding: 30px 20px;
+  color: #999;
+  font-size: 0.85rem;
+}
+
+/* Responsivo */
+@media (max-width: 600px) {
+  .header h1 {
+    font-size: 1.4rem;
+  }
+
+  .container {
+    padding: 15px;
+  }
+
+  .service-item {
+    padding: 15px;
+  }
+
+  .service-item-name {
+    font-size: 1rem;
+  }
+
+  .service-item-desc {
+    white-space: normal;
+  }
+
+  .detail-card {
+    padding: 20px;
+  }
+
+  .detail-name {
+    font-size: 1.3rem;
+  }
+
+  .search-bar .container {
+    flex-direction: column;
+  }
+
+  .search-input, .filter-select {
+    width: 100%;
+  }
+}
+"""
+
+
+def generate_index_html(services: list) -> str:
+    """Gera o HTML da página inicial com lista de serviços."""
+    categories = sorted(set(s["categoria"] for s in services if s["categoria"]))
+
+    items_html = []
+    for s in services:
+        slug = s["_slug"]
+        name = esc(s["nome"])
+        category = esc(s["categoria"])
+        desc_short = esc(truncate(s["descricao"], 80))
+        items_html.append(f"""        <li class="service-item" data-name="{name.lower()}" data-category="{category.lower()}">
+          <a href="services/{slug}/" style="text-decoration:none;color:inherit;display:flex;align-items:center;width:100%">
+            <div class="service-item-content">
+              <div class="service-item-name">{name}</div>
+              <span class="service-item-category">{category}</span>
+              <div class="service-item-desc">{desc_short}</div>
+            </div>
+            <span class="service-item-arrow"><i class="fas fa-chevron-right"></i></span>
+          </a>
+        </li>""")
+
+    items = "\n".join(items_html)
+
+    category_options = "\n".join(
+        f'<option value="{esc(cat)}">{esc(cat)}</option>' for cat in categories
     )
 
-def ler_planilha():
-    print("[Catálogo UP] Lendo dados do Google Sheets...")
+    return f"""<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Catálogo UP - Serviços</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <style>
+{CSS}
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1><i class="fas fa-tools"></i> Catálogo UP</h1>
+    <p>Encontre os melhores serviços da sua região</p>
+  </div>
 
-    sheet_key = os.environ.get("GOOGLE_SHEETS_KEY")
-    if not sheet_key:
-        raise EnvironmentError(
-            "Variável de ambiente GOOGLE_SHEETS_KEY não definida. "
-            "Defina-a com o ID da planilha."
+  <div class="search-bar">
+    <div class="container">
+      <input type="text" class="search-input" id="searchInput" placeholder="Buscar serviço...">
+      <select class="filter-select" id="categoryFilter">
+        <option value="">Todas as categorias</option>
+        {category_options}
+      </select>
+    </div>
+  </div>
+
+  <div class="container">
+    <ul class="service-list" id="serviceList">
+{items}
+    </ul>
+    <div class="no-results" id="noResults">
+      <i class="fas fa-search" style="font-size:2rem;margin-bottom:10px"></i>
+      <p>Nenhum serviço encontrado.</p>
+    </div>
+  </div>
+
+  <div class="footer">
+    <p>Catálogo UP &copy; 2025</p>
+  </div>
+
+  <script>
+    (function() {{
+      var searchInput = document.getElementById('searchInput');
+      var categoryFilter = document.getElementById('categoryFilter');
+      var items = document.querySelectorAll('.service-item');
+      var noResults = document.getElementById('noResults');
+
+      function filter() {{
+        var query = searchInput.value.toLowerCase().trim();
+        var cat = categoryFilter.value.toLowerCase().trim();
+        var visible = 0;
+        items.forEach(function(item) {{
+          var name = item.getAttribute('data-name') || '';
+          var category = item.getAttribute('data-category') || '';
+          var matchName = name.indexOf(query) !== -1;
+          var matchCat = !cat || category === cat;
+          if (matchName && matchCat) {{
+            item.style.display = '';
+            visible++;
+          }} else {{
+            item.style.display = 'none';
+          }}
+        }});
+        noResults.style.display = visible === 0 ? 'block' : 'none';
+      }}
+
+      searchInput.addEventListener('input', filter);
+      categoryFilter.addEventListener('change', filter);
+    }})();
+  </script>
+</body>
+</html>"""
+
+
+def generate_detail_html(service: dict) -> str:
+    """Gera o HTML da página de detalhes de um serviço em card."""
+    name = esc(service["nome"])
+    category = esc(service["categoria"])
+    desc = esc(service["descricao"])
+    phone = esc(service["telefone"])
+    email = esc(service["email"])
+    address = esc(service["endereco"])
+    hours = esc(service["horario"])
+    instagram = service.get("instagram", "")
+    whatsapp = service.get("whatsapp", "")
+
+    # Seção descrição
+    desc_html = f"""    <div class="detail-section">
+      <div class="detail-label">Descrição</div>
+      <div class="detail-desc">{desc}</div>
+    </div>""" if desc else ""
+
+    # Seção telefone
+    phone_html = f"""    <div class="detail-section">
+      <div class="detail-label"><i class="fas fa-phone"></i> Telefone</div>
+      <div class="detail-value">{phone}</div>
+    </div>""" if phone else ""
+
+    # Seção email
+    email_html = f"""    <div class="detail-section">
+      <div class="detail-label"><i class="fas fa-envelope"></i> E-mail</div>
+      <div class="detail-value"><a href="mailto:{email}">{email}</a></div>
+    </div>""" if email else ""
+
+    # Seção endereço
+    address_html = f"""    <div class="detail-section">
+      <div class="detail-label"><i class="fas fa-map-marker-alt"></i> Endereço</div>
+      <div class="detail-value">{address}</div>
+    </div>""" if address else ""
+
+    # Seção horário
+    hours_html = f"""    <div class="detail-section">
+      <div class="detail-label"><i class="fas fa-clock"></i> Horário de Funcionamento</div>
+      <div class="detail-value">{hours}</div>
+    </div>""" if hours else ""
+
+    # Ícones sociais
+    social_icons = []
+    if instagram:
+        ig_url = instagram if instagram.startswith("http") else f"https://instagram.com/{instagram.replace('@', '')}"
+        social_icons.append(
+            f'<a href="{esc(ig_url)}" target="_blank" rel="noopener noreferrer" class="social-icon instagram" title="Instagram"><i class="fab fa-instagram"></i></a>'
+        )
+    if whatsapp:
+        wa_num = re.sub(r"\D", "", whatsapp)
+        social_icons.append(
+            f'<a href="https://wa.me/{wa_num}" target="_blank" rel="noopener noreferrer" class="social-icon whatsapp" title="WhatsApp"><i class="fab fa-whatsapp"></i></a>'
         )
 
-    cred_path = obter_caminho_credenciais()
+    social_html = f"""    <div class="social-icons">
+      {''.join(social_icons)}
+    </div>""" if social_icons else ""
 
-    try:
-        gc = gspread.service_account(filename=cred_path)
-    except Exception as e:
-        raise RuntimeError(f"Não foi possível autenticar no Google Sheets: {e}")
+    return f"""<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{name} - Catálogo UP</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <style>
+{CSS}
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1><i class="fas fa-tools"></i> Catálogo UP</h1>
+    <p>Detalhes do serviço</p>
+  </div>
 
-    try:
-        planilha = gc.open_by_key(sheet_key)
-    except Exception as e:
-        raise RuntimeError(f"Não foi possível abrir a planilha (ID: {sheet_key}): {e}")
+  <div class="container">
+    <a href="../../" class="back-btn">
+      <i class="fas fa-arrow-left"></i> Voltar à lista
+    </a>
 
-    try:
-        worksheet = planilha.worksheet("catalogo up")
-    except Exception as e:
-        raise RuntimeError(f"Não foi possível acessar a primeira aba da planilha: {e}")
+    <div class="detail-card">
+      <div class="detail-header">
+        <div class="detail-name">{name}</div>
+        <span class="detail-category">{category}</span>
+      </div>
 
-    if worksheet is None:
-        raise RuntimeError("A planilha não possui nenhuma aba disponível.")
+{desc_html}
+{phone_html}
+{email_html}
+{address_html}
+{hours_html}
+{social_html}
+    </div>
+  </div>
 
-    try:
-        registros = worksheet.get_all_records()
-    except Exception as e:
-        raise RuntimeError(f"Erro ao ler os registros da planilha: {e}")
+  <div class="footer">
+    <p>Catálogo UP &copy; 2025</p>
+  </div>
+</body>
+</html>"""
 
-    # DEBUG ADICIONADO AQUI
-    if registros:
-        print(f"DEBUG: Nomes exatos das colunas encontradas: {list(registros[0].keys())}")
-        print(f"DEBUG: Exemplo do primeiro registro: {registros[0]}")
-    else:
-        print("DEBUG: A planilha parece estar vazia ou não foi possível ler os registros.")
 
-    servicos = []
-    for idx, linha in enumerate(registros, start=2):
-        linha_norm = {str(k).strip().lower(): v for k, v in linha.items()}
+# ---------------------------------------------------------------------------
+# Build principal
+# ---------------------------------------------------------------------------
 
-        if not any(str(v).strip() for v in linha_norm.values() if v is not None):
-            continue
-
-        servico = {}
-        for col in COLUNAS_ESPERADAS:
-            servico[col] = str(linha_norm.get(col, "") or "").strip()
-
-        if not servico["nome"]:
-            print(f"  [aviso] Linha {idx} ignorada por não conter 'nome'.")
-            continue
-
-        servicos.append(servico)
-
-    servicos = garantir_unicos_slugs(servicos)
-    return servicos
-
-# Geração do site
-def preparar_diretorio_publico():
+def clean_public_dir():
+    """Limpa o diretório public para regenerar."""
     if PUBLIC_DIR.exists():
         shutil.rmtree(PUBLIC_DIR)
     PUBLIC_DIR.mkdir(parents=True, exist_ok=True)
-    (PUBLIC_DIR / "services").mkdir(parents=True, exist_ok=True)
+    ASSETS_DIR.mkdir(parents=True, exist_ok=True)
 
-def escrever_arquivo(caminho: Path, conteudo: str):
-    caminho.parent.mkdir(parents=True, exist_ok=True)
-    caminho.write_text(conteudo, encoding="utf-8")
 
-def gerar_site(servicos):
-    preparar_diretorio_publico()
+def build():
+    """Função principal de build."""
+    print("[Catálogo UP] Iniciando build...")
 
-    categorias = sorted({
-        s.get("categoria", "") for s in servicos if s.get("categoria", "")
-    })
+    # Lê dados
+    services = read_google_sheets()
+    if not services:
+        print("[Catálogo UP] Nenhum serviço encontrado. Build vazio.")
+        services = get_sample_data()
 
-    print(f"  -> {len(servicos)} serviços")
-    print(f"  -> {len(categorias)} categorias")
+    # Gera slugs únicos
+    existing_slugs = set()
+    for s in services:
+        base_slug = slugify(s.get("nome", "servico"))
+        s["_slug"] = ensure_unique_slug(base_slug, existing_slugs)
 
-    escrever_arquivo(PUBLIC_DIR / "index.html", gerar_home(servicos, categorias))
-    escrever_arquivo(
-        PUBLIC_DIR / "services" / "index.html",
-        gerar_lista_servicos(servicos, categorias),
-    )
+    # Limpa e recria public
+    clean_public_dir()
 
-    for s in servicos:
-        dir_servico = PUBLIC_DIR / "services" / s["id"]
-        escrever_arquivo(dir_servico / "index.html", gerar_detalhe_servico(s))
+    # Gera página inicial (lista)
+    index_html = generate_index_html(services)
+    index_path = PUBLIC_DIR / "index.html"
+    index_path.write_text(index_html, encoding="utf-8")
+    print(f"[Catálogo UP] Página inicial gerada: {index_path}")
 
-    print("[Catálogo UP] Site estático gerado com sucesso em 'public/'.")
+    # Gera páginas de detalhes
+    for s in services:
+        slug = s["_slug"]
+        service_dir = SERVICES_DIR / slug
+        service_dir.mkdir(parents=True, exist_ok=True)
 
-# Principal
-def main():
-    try:
-        servicos = ler_planilha()
-        if not servicos:
-            print("[Catálogo UP] AVISO: Nenhum serviço encontrado na planilha.")
-            print("               Gerando site com lista vazia.")
-        gerar_site(servicos)
-    except FileNotFoundError as e:
-        print(f"[Catálogo UP] ERRO: {e}")
-        sys.exit(1)
-    except EnvironmentError as e:
-        print(f"[Catálogo UP] ERRO: {e}")
-        sys.exit(1)
-    except RuntimeError as e:
-        print(f"[Catálogo UP] ERRO: {e}")
-        sys.exit(1)
-    except Exception as e:
-        print(f"[Catálogo UP] ERRO inesperado: {e}")
-        sys.exit(1)
+        detail_html = generate_detail_html(s)
+        detail_path = service_dir / "index.html"
+        detail_path.write_text(detail_html, encoding="utf-8")
+        print(f"[Catálogo UP] Detalhe gerado: {detail_path}")
+
+    # Gera dados JSON para uso opcional
+    json_path = ASSETS_DIR / "services.json"
+    json_data = []
+    for s in services:
+        json_data.append({
+            "slug": s["_slug"],
+            "nome": s["nome"],
+            "categoria": s["categoria"],
+            "descricao": s["descricao"],
+            "telefone": s["telefone"],
+            "email": s["email"],
+            "endereco": s["endereco"],
+            "horario": s["horario"],
+            "instagram": s.get("instagram", ""),
+            "whatsapp": s.get("whatsapp", ""),
+        })
+    json_path.write_text(json.dumps(json_data, ensure_ascii=False, indent=2), encoding="utf-8")
+    print(f"[Catálogo UP] JSON gerado: {json_path}")
+
+    print(f"[Catálogo UP] Build concluído! {len(services)} serviços publicados.")
+
 
 if __name__ == "__main__":
-    main()
+    build()
